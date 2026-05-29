@@ -370,7 +370,7 @@ function renderCal(year,month){
   for(let d=1;d<=days;d++){
     const ds=`${year}-${pad(month)}-${pad(d)}`,dt=new Date(year,month-1,d),dow=dt.getDay();
     const el=document.createElement('div');el.className='cal-day';el.innerHTML=`<span>${d}</span>`;
-    if(dt<today){el.classList.add('past');}
+    if(dt<=today && dt.getTime()!==today.getTime()){el.classList.add('past');}
     else{
       if(!isBlocked(ds,dow)&&schedule.days?.[String(dow)]?.active){
         el.classList.add('available');
@@ -406,7 +406,13 @@ async function pickDate(ds){
   let slots=[],sh=parseInt(dayConf.start),sm2=parseInt(dayConf.start.split(':')[1]);
   let[sh2,sm3]=dayConf.start.split(':').map(Number),[eh,em]=dayConf.end.split(':').map(Number);
   let cur=sh2*60+sm3,end=eh*60+em;
-  while(cur+dur<=end){slots.push(`${pad(Math.floor(cur/60))}:${pad(cur%60)}`);cur+=dur;}
+  const now=new Date(), todayStr=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const nowMins=now.getHours()*60+now.getMinutes();
+  while(cur+dur<=end){
+    const t=`${pad(Math.floor(cur/60))}:${pad(cur%60)}`;
+    if(ds!==todayStr || cur>nowMins) slots.push(t);
+    cur+=dur;
+  }
   if(!slots.length){renderNoSlots();return;}
   document.getElementById('slotsWrap').innerHTML='<div class="slots-grid">'+slots.map(t=>{
     const count=bCount[t]||0,locked=lockedSet.has(t),full=count>=MAX,rem=MAX-count;
