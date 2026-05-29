@@ -385,6 +385,43 @@ const MONTHS = ["Ιανουάριος","Φεβρουάριος","Μάρτιος"
 const MONTHS_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
 const DAYS_SH = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
 
+// ── Greek public holidays ──
+function getEaster(year) {
+  const a=year%4, b=year%7, c=year%19;
+  const d=(19*c+15)%30, e=(2*a+4*b-d+34)%7;
+  const f=d+e+114, month=Math.floor(f/31), day=(f%31)+1;
+  // Julian to Gregorian (+13 days for 21st century)
+  const julian = new Date(year, month-1, day+13);
+  return julian;
+}
+function getHolidays(year) {
+  const fixed = [
+    `${year}-01-01`, `${year}-01-06`, `${year}-03-25`,
+    `${year}-05-01`, `${year}-08-15`, `${year}-10-28`,
+    `${year}-12-25`, `${year}-12-26`
+  ];
+  const easter = getEaster(year);
+  const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const variable = [
+    fmt(addDays(easter,-48)), // Καθαρά Δευτέρα
+    fmt(addDays(easter,-2)),  // Μεγάλη Παρασκευή
+    fmt(addDays(easter,1)),   // Δευτέρα Πάσχα
+    fmt(addDays(easter,50)),  // Αγίου Πνεύματος
+  ];
+  return new Set([...fixed, ...variable]);
+}
+// Cache holidays for relevant years
+const holidayCache = {};
+function isHoliday(dateStr) {
+  const year = parseInt(dateStr.slice(0,4));
+  if(!holidayCache[year]) holidayCache[year] = getHolidays(year);
+  return holidayCache[year].has(dateStr);
+}
+function isBlocked(dateStr, dow) {
+  return dow === 0 || isHoliday(dateStr); // Block Sundays and holidays
+}
+
 function dateStr(y,m,d){ return `${y}-${pad(m)}-${pad(d)}`; }
 function fmtDate(s){
   const [y,m,d]=s.split('-').map(Number);
@@ -433,12 +470,15 @@ function renderCal(year, month){
       el.classList.add('past');
     } else {
       const dayConf = schedule.days[String(dow)];
-      if(dayConf && dayConf.active){
+      const blocked = isBlocked(ds, dow);
+      if(!blocked && dayConf && dayConf.active){
         el.classList.add('available');
         el.onclick = () => pickDate(ds);
         if(ds===selDate) el.classList.add('selected');
       } else {
         el.classList.add('off');
+        if(isHoliday(ds)) el.title = 'Αργία';
+        if(dow===0) el.title = 'Κυριακή — κλειστά';
       }
       if(dt.getTime()===today.getTime()) el.classList.add('today');
     }

@@ -176,6 +176,25 @@
       padding:8px 12px; border:1.5px solid var(--border); border-radius:8px;
       font-size:0.85rem; outline:none; color:var(--text);
     }
+
+    /* Admin monthly calendar */
+    .acal-head { text-align:center; font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:4px 0 10px; letter-spacing:.05em; }
+    .acal-day {
+      aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:3px;
+      font-size:.82rem; font-weight:600; border:1.5px solid transparent;
+      cursor:default; transition:all .15s; padding:4px 2px;
+    }
+    .acal-day.off { color:#d1d5db; }
+    .acal-day.holiday { color:#f87171; font-size:.7rem; }
+    .acal-day.today { border-color:var(--accent); }
+    .acal-day.has-slots { cursor:pointer; }
+    .acal-day.has-slots:hover { border-color:var(--accent); transform:scale(1.05); }
+    .acal-day.free { background:#f0fdf4; color:#15803d; }
+    .acal-day.almost { background:#fefce8; color:#b45309; }
+    .acal-day.full-day { background:#fef2f2; color:#dc2626; }
+    .acal-dot { width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.6; }
+    .acal-count { font-size:.65rem; font-weight:500; opacity:.8; }
   </style>
 </head>
 <body>
@@ -224,8 +243,34 @@
 
   <!-- SCHEDULE -->
   <div id="tSchedule" class="content" style="display:none">
+
+    <!-- Monthly calendar overview -->
     <div class="section-card">
-      <div class="section-title">Εβδομαδιαίο ωράριο</div>
+      <div class="section-title">
+        <span id="adminMonthLabel"></span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" id="adminPrevM">&#8249;</button>
+          <button class="btn btn-ghost btn-sm" id="adminNextM">&#8250;</button>
+        </div>
+      </div>
+      <div id="adminCalGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px"></div>
+      <div style="display:flex;gap:16px;margin-top:14px;font-size:0.75rem;color:var(--muted);flex-wrap:wrap">
+        <span>🟢 Ελεύθερες ώρες</span>
+        <span>🟡 Σχεδόν πλήρης</span>
+        <span>🔴 Πλήρης</span>
+        <span>⚪ Κλειστά</span>
+      </div>
+    </div>
+
+    <!-- Day detail panel -->
+    <div class="section-card" id="dayDetailCard" style="display:none">
+      <div class="section-title" id="dayDetailTitle"></div>
+      <div id="dayDetailContent"></div>
+    </div>
+
+    <!-- Weekly schedule settings -->
+    <div class="section-card">
+      <div class="section-title">⚙️ Ρυθμίσεις ωραρίου</div>
       <div class="dur-row">
         <label>Διάρκεια session:</label>
         <select id="durSel">
@@ -248,7 +293,7 @@
       <div class="days-grid" id="daysGrid"></div>
     </div>
     <div class="save-bar">
-      <span>Οι αλλαγές εφαρμόζονται άμεσα στις κρατήσεις</span>
+      <span>Κυριακές και αργίες κλειδωμένες αυτόματα</span>
       <button class="btn btn-primary" onclick="saveSchedule()">💾 Αποθήκευση ωραρίου</button>
     </div>
 
@@ -314,7 +359,26 @@ const db   = getFirestore(app);
 
 const pad = n => String(n).padStart(2,'0');
 const DAYS = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
+const MONTHS = ["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος","Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
 const MONTHS_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
+
+// ── Greek holidays ──
+function getEaster(year){
+  const a=year%4,b=year%7,c=year%19;
+  const d=(19*c+15)%30,e=(2*a+4*b-d+34)%7;
+  const f=d+e+114,month=Math.floor(f/31),day=(f%31)+1;
+  const julian=new Date(year,month-1,day+13); return julian;
+}
+function getHolidays(year){
+  const fixed=[`${year}-01-01`,`${year}-01-06`,`${year}-03-25`,`${year}-05-01`,`${year}-08-15`,`${year}-10-28`,`${year}-12-25`,`${year}-12-26`];
+  const easter=getEaster(year);
+  const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  return new Set([...fixed,fmt(addD(easter,-48)),fmt(addD(easter,-2)),fmt(addD(easter,1)),fmt(addD(easter,50))]);
+}
+const holCache={};
+function isHoliday(ds){const y=parseInt(ds.slice(0,4));if(!holCache[y])holCache[y]=getHolidays(y);return holCache[y].has(ds);}
+function isBlocked(ds,dow){return dow===0||isHoliday(ds);}
 
 function today(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
 function fmtDate(s){
@@ -356,9 +420,141 @@ window.showTab = function(t){
   document.querySelectorAll('.tab').forEach((el,i)=>{
     el.classList.toggle('active',['dash','schedule','bookings'][i]===t);
   });
-  if(t==='schedule'){ renderScheduleUI(); loadLocks(); }
+  if(t==='schedule'){ renderScheduleUI(); loadLocks(); renderAdminCal(adminCY, adminCM); }
   if(t==='bookings') loadBookings();
 };
+
+// ── Admin Monthly Calendar ──
+let adminCY, adminCM;
+let allBookings = [], allLocked = [];
+
+async function loadMonthData(year, month){
+  const from=`${year}-${pad(month)}-01`, to=`${year}-${pad(month)}-31`;
+  try {
+    const [bSnap,lSnap] = await Promise.all([
+      getDocs(query(collection(db,'bookings'),where('date','>=',from),where('date','<=',to))),
+      getDocs(query(collection(db,'locked'),where('date','>=',from),where('date','<=',to)))
+    ]);
+    allBookings=[]; allLocked=[];
+    bSnap.forEach(d=>allBookings.push({id:d.id,...d.data()}));
+    lSnap.forEach(d=>allLocked.push({id:d.id,...d.data()}));
+  } catch(e){ console.error(e); }
+}
+
+async function renderAdminCal(year, month){
+  adminCY=year; adminCM=month;
+  document.getElementById('adminMonthLabel').textContent=`${MONTHS[month-1]} ${year}`;
+  await loadMonthData(year, month);
+
+  const MAX = schedule.maxPerSlot||3;
+  const dur = schedule.duration||60;
+  const grid = document.getElementById('adminCalGrid');
+  grid.innerHTML='';
+  DAYS.forEach(d=>{ const el=document.createElement('div');el.className='acal-head';el.textContent=d;grid.appendChild(el); });
+
+  const today=new Date(); today.setHours(0,0,0,0);
+  const firstDay=new Date(year,month-1,1).getDay();
+  const days=new Date(year,month,0).getDate();
+
+  // Count bookings and locks per date
+  const bCount={}, lDates=new Set();
+  allBookings.forEach(b=>{ bCount[b.date]=(bCount[b.date]||0)+1; });
+  allLocked.forEach(l=>lDates.add(l.date+'_'+l.time));
+
+  for(let i=0;i<firstDay;i++){ const el=document.createElement('div');el.className='acal-day';grid.appendChild(el); }
+
+  for(let d=1;d<=days;d++){
+    const ds=`${year}-${pad(month)}-${pad(d)}`;
+    const dt=new Date(year,month-1,d);
+    const dow=dt.getDay();
+    const el=document.createElement('div');
+    el.className='acal-day';
+    el.innerHTML=`<span>${d}</span>`;
+
+    if(isBlocked(ds,dow)){
+      el.classList.add('off');
+      if(isHoliday(ds)) el.classList.add('holiday');
+      if(dt.getTime()===today.getTime()) el.classList.add('today');
+    } else {
+      const dayConf=schedule.days?.[String(dow)];
+      if(dayConf && dayConf.active){
+        // Calculate total slots for the day
+        let [sh,sm]=dayConf.start.split(':').map(Number);
+        let [eh,em]=dayConf.end.split(':').map(Number);
+        let totalSlots=0, cur=sh*60+sm, end=eh*60+em;
+        while(cur+dur<=end){ totalSlots++; cur+=dur; }
+
+        const booked=bCount[ds]||0;
+        const totalCapacity=totalSlots*MAX;
+        const ratio=totalCapacity>0?booked/totalCapacity:0;
+
+        let cls='has-slots ';
+        if(ratio===0) cls+='free';
+        else if(ratio<0.7) cls+='free';
+        else if(ratio<1) cls+='almost';
+        else cls+='full-day';
+
+        el.classList.add(...cls.split(' ').filter(Boolean));
+        if(booked>0) el.innerHTML+=`<div class="acal-count">${booked} κρατ.</div>`;
+        el.onclick=()=>showDayDetail(ds, dow);
+      } else {
+        el.classList.add('off');
+      }
+      if(dt.getTime()===today.getTime()) el.classList.add('today');
+    }
+    grid.appendChild(el);
+  }
+}
+
+document.getElementById('adminPrevM').onclick=()=>{let m=adminCM-1,y=adminCY;if(m<1){m=12;y--;}renderAdminCal(y,m);};
+document.getElementById('adminNextM').onclick=()=>{let m=adminCM+1,y=adminCY;if(m>12){m=1;y++;}renderAdminCal(y,m);};
+
+async function showDayDetail(ds, dow){
+  const card=document.getElementById('dayDetailCard');
+  const title=document.getElementById('dayDetailTitle');
+  const cont=document.getElementById('dayDetailContent');
+  card.style.display='block';
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  const [y,m,d]=ds.split('-').map(Number);
+  title.textContent=`${DAYS[dow]} ${d} ${MONTHS_GEN[m-1]}`;
+
+  const dayConf=schedule.days?.[String(dow)];
+  if(!dayConf||!dayConf.active){ cont.innerHTML='<div class="empty">Κλειστά αυτή την ημέρα</div>'; return; }
+
+  const dur=schedule.duration||60;
+  const MAX=schedule.maxPerSlot||3;
+  const dayBookings=allBookings.filter(b=>b.date===ds);
+  const dayLocked=allLocked.filter(l=>l.date===ds);
+  const lockedTimes=new Set(dayLocked.map(l=>l.time));
+  const bByTime={};
+  dayBookings.forEach(b=>{ if(!bByTime[b.time])bByTime[b.time]=[]; bByTime[b.time].push(b); });
+
+  let [sh,sm]=dayConf.start.split(':').map(Number);
+  let [eh,em]=dayConf.end.split(':').map(Number);
+  let slots=[],cur=sh*60+sm,end=eh*60+em;
+  while(cur+dur<=end){slots.push(`${pad(Math.floor(cur/60))}:${pad(cur%60)}`);cur+=dur;}
+
+  cont.innerHTML=`<table>
+    <thead><tr><th>Ώρα</th><th>Κρατήσεις</th><th>Κατάσταση</th><th>Ονόματα</th></tr></thead>
+    <tbody>${slots.map(t=>{
+      const locked=lockedTimes.has(t);
+      const bs=bByTime[t]||[];
+      const count=bs.length;
+      let status,statusCls;
+      if(locked){status='🔒 Κλειδωμένο';statusCls='badge-past';}
+      else if(count>=MAX){status='Πλήρης';statusCls='badge-past';}
+      else if(count>0){status=`${count}/${MAX}`;statusCls='badge-upcoming';}
+      else{status='Ελεύθερη';statusCls='badge-upcoming';}
+      return `<tr>
+        <td><strong>${t}</strong></td>
+        <td>${locked?'—':`${count}/${MAX}`}</td>
+        <td><span class="badge ${statusCls}">${status}</span></td>
+        <td style="font-size:.82rem">${bs.map(b=>b.name).join(', ')||'—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
 
 // ── Load all ──
 async function loadAll(){
@@ -366,6 +562,8 @@ async function loadAll(){
     const s = await getDoc(doc(db,'schedule','config'));
     if(s.exists()) schedule = s.data();
   } catch(e){}
+  const now=new Date();
+  adminCY=now.getFullYear(); adminCM=now.getMonth()+1;
   loadDashboard();
 }
 
