@@ -340,7 +340,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp }
+import { getFirestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -564,7 +564,19 @@ async function loadAll(){
   } catch(e){}
   const now=new Date();
   adminCY=now.getFullYear(); adminCM=now.getMonth()+1;
-  loadDashboard();
+
+  // Real-time listener — ανανεώνεται αυτόματα με κάθε νέα κράτηση
+  onSnapshot(collection(db,'bookings'), ()=>{
+    loadDashboard();
+    // Αν το schedule tab είναι ανοιχτό, ανανέωσε το calendar
+    if(document.getElementById('tSchedule').style.display !== 'none'){
+      renderAdminCal(adminCY, adminCM);
+    }
+    // Αν το bookings tab είναι ανοιχτό, ανανέωσε τη λίστα
+    if(document.getElementById('tBookings').style.display !== 'none'){
+      loadBookings();
+    }
+  });
 }
 
 // ── Dashboard ──
