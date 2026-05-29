@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Διαχείριση Κρατήσεων</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* Login screen */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .login-box {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .login-box h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    .login-box p { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+    .login-box label { display:block; font-size:0.85rem; color:#aaa; margin-bottom:6px; }
+    .login-box input {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0f0f1a;
+      border: 1.5px solid #333;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .login-box input:focus { border-color: #6366f1; }
+    .login-error { color: #f87171; font-size: 0.85rem; margin-bottom:12px; display:none; }
+
+    /* Main app */
+    #app { display: none; }
+
+    nav {
+      background: #1a1a2e;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2a2a3e;
+    }
+    nav h1 { font-size: 1.1rem; font-weight: 700; }
+    nav span { font-size: 0.85rem; color: #888; }
+    .logout-btn {
+      background: none;
+      border: 1px solid #444;
+      color: #aaa;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .logout-btn:hover { border-color: #f87171; color: #f87171; }
+
+    .tabs {
+      display: flex;
+      background: #1a1a2e;
+      border-bottom: 1px solid #2a2a3e;
+    }
+    .tab {
+      padding: 14px 24px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #888;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+    .tab:hover { color: #e0e0e0; }
+
+    .content { max-width: 900px; margin: 0 auto; padding: 28px 16px; }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #1a1a2e;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 700; color: #6366f1; }
+    .stat-card .lbl { font-size: 0.8rem; color: #888; margin-top: 4px; }
+
+    /* Section titles */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Add slot form */
+    .add-slot-form {
+      background: #1a1a2e;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+    @media(max-width:600px){ .form-row { grid-template-columns: 1fr 1fr; } }
+    .form-group label { font-size:0.82rem; color:#aaa; margin-bottom:6px; display:block; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0f0f1a;
+      border: 1.5px solid #333;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #6366f1; }
+    .form-group select option { background: #1a1a2e; }
+
+    /* Repeat slot form */
+    .repeat-form {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #2a2a3e;
+    }
+    .repeat-form .form-row { grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); }
+    .days-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .day-toggle {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #333;
+      background: none;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .day-toggle.on { background: #6366f1; border-color: #6366f1; color: white; }
+
+    .btn { padding: 10px 20px; border-radius: 8px; font-size:0.9rem; font-weight:600; cursor:pointer; border:none; transition: all 0.15s; }
+    .btn-primary { background: #6366f1; color: white; }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-danger { background: #7f1d1d; color: #fca5a5; }
+    .btn-danger:hover { background: #991b1b; }
+    .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+    .btn-success { background: #166534; color: #86efac; }
+    .btn-success:hover { background: #15803d; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { background: #1a1a2e; padding: 12px 14px; text-align:left; color:#888; font-weight:600; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; }
+    td { padding: 12px 14px; border-bottom: 1px solid #1a1a2e; }
+    tr:hover td { background: #1a1a2e55; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-available { background: #14532d; color: #86efac; }
+    .badge-booked { background: #312e81; color: #a5b4fc; }
+
+    .loading { text-align:center; padding:32px; color:#666; }
+    .spinner { width:28px;height:28px;border:3px solid #333;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state { text-align:center; padding:40px; color:#555; }
+
+    /* Filters */
+    .filters {
+      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+    }
+    .filters select, .filters input {
+      padding: 8px 12px;
+      background: #1a1a2e;
+      border: 1.5px solid #2a2a3e;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .filters select option { background: #1a1a2e; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>🔒 Admin Panel</h1>
+    <p>Σύνδεση διαχειριστή</p>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@example.com" />
+    <label>Κωδικός</label>
+    <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Σύνδεση</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav>
+    <h1>💪 Admin — Κρατήσεις</h1>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span id="adminEmail"></span>
+      <button class="logout-btn" onclick="doLogout()">Αποσύνδεση</button>
+    </div>
+  </nav>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+    <div class="tab" onclick="showTab('slots')">🗓️ Διαχείριση Slots</div>
+    <div class="tab" onclick="showTab('bookings')">📋 Κρατήσεις</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tabDashboard" class="content">
+    <div class="stats" id="statsRow">
+      <div class="stat-card"><div class="num" id="statTotal">—</div><div class="lbl">Σύνολο κρατήσεων</div></div>
+      <div class="stat-card"><div class="num" id="statToday">—</div><div class="lbl">Σήμερα</div></div>
+      <div class="stat-card"><div class="num" id="statAvail">—</div><div class="lbl">Διαθέσιμες ώρες</div></div>
+      <div class="stat-card"><div class="num" id="statWeek">—</div><div class="lbl">Αυτή την εβδομάδα</div></div>
+    </div>
+
+    <div class="section-title">📅 Επερχόμενες κρατήσεις</div>
+    <div class="table-wrap" id="upcomingTable">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- SLOTS MANAGEMENT -->
+  <div id="tabSlots" class="content" style="display:none">
+    <div class="section-title">➕ Προσθήκη διαθέσιμης ώρας</div>
+    <div class="add-slot-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ημερομηνία</label>
+          <input type="date" id="slotDate" />
+        </div>
+        <div class="form-group">
+          <label>Ώρα έναρξης</label>
+          <input type="time" id="slotTime" />
+        </div>
+        <div class="form-group">
+          <label>Διάρκεια (λεπτά)</label>
+          <select id="slotDuration">
+            <option value="30">30 λεπτά</option>
+            <option value="45">45 λεπτά</option>
+            <option value="60" selected>60 λεπτά</option>
+            <option value="90">90 λεπτά</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" onclick="addSlot()">Προσθήκη</button>
+        </div>
+      </div>
+
+      <!-- Bulk / repeat -->
+      <div class="repeat-form">
+        <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600">
+          🔁 Προσθήκη επαναλαμβανόμενων ωρών
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Από</label>
+            <input type="date" id="repFrom" />
+          </div>
+          <div class="form-group">
+            <label>Έως</label>
+            <input type="date" id="repTo" />
+          </div>
+          <div class="form-group">
+            <label>Ώρα</label>
+            <input type="time" id="repTime" />
+          </div>
+          <div class="form-group">
+            <label>Διάρκεια</label>
+            <select id="repDuration">
+              <option value="30">30 λεπ.</option>
+              <option value="45">45 λεπ.</option>
+              <option value="60" selected>60 λεπ.</option>
+              <option value="90">90 λεπ.</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:0.82rem;color:#888;margin-top:12px;margin-bottom:6px">Ημέρες:</div>
+        <div class="days-row" id="repDays">
+          <button class="day-toggle on" data-day="1">Δευ</button>
+          <button class="day-toggle on" data-day="2">Τρί</button>
+          <button class="day-toggle on" data-day="3">Τετ</button>
+          <button class="day-toggle on" data-day="4">Πέμ</button>
+          <button class="day-toggle on" data-day="5">Παρ</button>
+          <button class="day-toggle" data-day="6">Σάβ</button>
+          <button class="day-toggle" data-day="0">Κυρ</button>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-primary" onclick="addRepeatSlots()">Δημιουργία επαναλαμβανόμενων</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Όλα τα slots
+      <div class="filters" style="margin:0">
+        <select id="slotFilter" onchange="loadSlots()">
+          <option value="all">Όλα</option>
+          <option value="available">Διαθέσιμα</option>
+          <option value="booked">Κλεισμένα</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap" id="slotsTable">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div id="tabBookings" class="content" style="display:none">
+    <div class="section-title">Όλες οι κρατήσεις</div>
+    <div class="filters">
+      <input type="date" id="bookingFilterDate" onchange="loadBookings()" />
+      <select id="bookingFilterStatus" onchange="loadBookings()">
+        <option value="all">Όλες</option>
+        <option value="upcoming">Επερχόμενες</option>
+        <option value="past">Παρελθόν</option>
+      </select>
+      <button class="btn btn-sm" style="background:#1a1a2e;color:#aaa;border:1px solid #333" onclick="document.getElementById('bookingFilterDate').value='';loadBookings()">Καθαρισμός</button>
+    </div>
+    <div class="table-wrap" id="bookingsTable">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs, addDoc, doc,
+           updateDoc, deleteDoc, orderBy, serverTimestamp, Timestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ── ΑΛΛΑΞΕ ΑΥΤΑ ──
+  const firebaseConfig = {
+    apiKey:            "AIzaSyATXEnqexj5iUAoMWgA64mKhzeig_Tje_Q",
+    authDomain:        "bar-is-loading-booking.firebaseapp.com",
+    projectId:         "bar-is-loading-booking",
+    storageBucket:     "bar-is-loading-booking.firebasestorage.app",
+    messagingSenderId: "923651403991",
+    appId:             "1:923651403991:web:8a36f66e2ab9ed85300092",
+    measurementId:     "G-JHVSGRNH4V"
+  };
+  // ─────────────────
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  const DAYS_EL = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
+  const MONTHS_EL_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου",
+                          "Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
+
+  function fmtDate(s){
+    const [y,m,d]=s.split('-').map(Number);
+    const dow=new Date(y,m-1,d).getDay();
+    return `${DAYS_EL[dow]} ${d} ${MONTHS_EL_GEN[m-1]} ${y}`;
+  }
+  function todayStr(){
+    const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  // ── Auth ──
+  onAuthStateChanged(auth, user => {
+    if(user){
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('app').style.display='block';
+      document.getElementById('adminEmail').textContent=user.email;
+      loadDashboard();
+    } else {
+      document.getElementById('loginScreen').style.display='flex';
+      document.getElementById('app').style.display='none';
+    }
+  });
+
+  window.doLogin = async function(){
+    const email = document.getElementById('loginEmail').value;
+    const pass  = document.getElementById('loginPass').value;
+    const err   = document.getElementById('loginError');
+    err.style.display='none';
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e){
+      err.textContent = 'Λάθος email ή κωδικός.';
+      err.style.display='block';
+    }
+  };
+
+  window.doLogout = () => signOut(auth);
+
+  // ── Tabs ──
+  window.showTab = function(tab){
+    ['dashboard','slots','bookings'].forEach(t => {
+      document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = t===tab?'block':'none';
+    });
+    document.querySelectorAll('.tab').forEach((el,i) => {
+      el.classList.toggle('active', ['dashboard','slots','bookings'][i]===tab);
+    });
+    if(tab==='slots') loadSlots();
+    if(tab==='bookings') loadBookings();
+  };
+
+  // ── Day toggles ──
+  document.querySelectorAll('.day-toggle').forEach(btn => {
+    btn.onclick = () => btn.classList.toggle('on');
+  });
+
+  // ── Dashboard ──
+  async function loadDashboard(){
+    const today = todayStr();
+    const snap = await getDocs(collection(db,'slots'));
+    let total=0, todayBooked=0, avail=0, weekBooked=0;
+    const now = new Date(); now.setHours(0,0,0,0);
+    const weekEnd = new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
+    const upcoming = [];
+
+    snap.forEach(d => {
+      const s = d.data();
+      if(!s.available) total++;
+      if(!s.available && s.date===today) todayBooked++;
+      if(s.available) avail++;
+      const sd = new Date(s.date);
+      if(!s.available && sd>=now && sd<weekEnd) weekBooked++;
+      if(!s.available && s.date>=today) upcoming.push({id:d.id,...s});
+    });
+
+    document.getElementById('statTotal').textContent=total;
+    document.getElementById('statToday').textContent=todayBooked;
+    document.getElementById('statAvail').textContent=avail;
+    document.getElementById('statWeek').textContent=weekBooked;
+
+    upcoming.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    const el = document.getElementById('upcomingTable');
+    if(!upcoming.length){
+      el.innerHTML='<div class="empty-state">Δεν υπάρχουν επερχόμενες κρατήσεις</div>';
+      return;
+    }
+    el.innerHTML=`<table>
+      <thead><tr><th>Ημερομηνία</th><th>Ώρα</th><th>Ασκούμενος</th><th>Email</th><th>Τηλ.</th><th>Ενέργεια</th></tr></thead>
+      <tbody>${upcoming.slice(0,10).map(s=>`
+        <tr>
+          <td>${fmtDate(s.date)}</td>
+          <td>${s.time}</td>
+          <td>${s.bookedBy?.name||'—'}</td>
+          <td>${s.bookedBy?.email||'—'}</td>
+          <td>${s.bookedBy?.phone||'—'}</td>
+          <td><button class="btn btn-sm btn-success" onclick="freeSlot('${s.id}')">Ακύρωση</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  // ── Slots ──
+  window.loadSlots = async function(){
+    const filter = document.getElementById('slotFilter').value;
+    let q = query(collection(db,'slots'));
+    const snap = await getDocs(q);
+    const el = document.getElementById('slotsTable');
+
+    let rows = [];
+    snap.forEach(d => {
+      const s={id:d.id,...d.data()};
+      if(filter==='available' && !s.available) return;
+      if(filter==='booked' && s.available) return;
+      rows.push(s);
+    });
+    rows.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+
+    if(!rows.length){ el.innerHTML='<div class="empty-state">Δεν βρέθηκαν slots</div>'; return; }
+
+    el.innerHTML=`<table>
+      <thead><tr><th>Ημερομηνία</th><th>Ώρα</th><th>Διάρκεια</th><th>Κατάσταση</th><th>Κρατήθηκε από</th><th>Ενέργειες</th></tr></thead>
+      <tbody>${rows.map(s=>`
+        <tr>
+          <td>${fmtDate(s.date)}</td>
+          <td>${s.time}</td>
+          <td>${s.duration||60} λεπ.</td>
+          <td><span class="badge ${s.available?'badge-available':'badge-booked'}">${s.available?'Διαθέσιμο':'Κλεισμένο'}</span></td>
+          <td>${s.bookedBy?`${s.bookedBy.name}<br><small style="color:#888">${s.bookedBy.email}</small>`:'—'}</td>
+          <td style="display:flex;gap:8px;flex-wrap:wrap">
+            ${!s.available?`<button class="btn btn-sm btn-success" onclick="freeSlot('${s.id}')">Ακύρωση</button>`:''}
+            <button class="btn btn-sm btn-danger" onclick="deleteSlot('${s.id}')">Διαγραφή</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  };
+
+  window.addSlot = async function(){
+    const date = document.getElementById('slotDate').value;
+    const time = document.getElementById('slotTime').value;
+    const dur  = parseInt(document.getElementById('slotDuration').value);
+    if(!date||!time){ alert('Συμπλήρωσε ημερομηνία και ώρα'); return; }
+    await addDoc(collection(db,'slots'),{ date, time, duration:dur, available:true, createdAt:serverTimestamp() });
+    loadSlots(); loadDashboard();
+    alert('✅ Slot προστέθηκε!');
+  };
+
+  window.addRepeatSlots = async function(){
+    const from = document.getElementById('repFrom').value;
+    const to   = document.getElementById('repTo').value;
+    const time = document.getElementById('repTime').value;
+    const dur  = parseInt(document.getElementById('repDuration').value);
+    const days = [...document.querySelectorAll('.day-toggle.on')].map(b=>parseInt(b.dataset.day));
+    if(!from||!to||!time||!days.length){ alert('Συμπλήρωσε όλα τα πεδία'); return; }
+
+    const start = new Date(from); const end = new Date(to);
+    let count=0, cur=new Date(start);
+    const promises=[];
+    while(cur<=end){
+      if(days.includes(cur.getDay())){
+        const d=`${cur.getFullYear()}-${pad(cur.getMonth()+1)}-${pad(cur.getDate())}`;
+        promises.push(addDoc(collection(db,'slots'),{date:d,time,duration:dur,available:true,createdAt:serverTimestamp()}));
+        count++;
+      }
+      cur.setDate(cur.getDate()+1);
+    }
+    await Promise.all(promises);
+    loadSlots(); loadDashboard();
+    alert(`✅ Προστέθηκαν ${count} slots!`);
+  };
+
+  window.freeSlot = async function(id){
+    if(!confirm('Να ακυρωθεί η κράτηση και να γίνει ξανά διαθέσιμη η ώρα;')) return;
+    await updateDoc(doc(db,'slots',id),{ available:true, bookedBy:null, bookedAt:null });
+    loadSlots(); loadDashboard(); loadBookings();
+  };
+
+  window.deleteSlot = async function(id){
+    if(!confirm('Να διαγραφεί οριστικά αυτό το slot;')) return;
+    await deleteDoc(doc(db,'slots',id));
+    loadSlots(); loadDashboard();
+  };
+
+  // ── Bookings ──
+  window.loadBookings = async function(){
+    const today=todayStr();
+    const dateF = document.getElementById('bookingFilterDate').value;
+    const statusF = document.getElementById('bookingFilterStatus').value;
+
+    let q = query(collection(db,'slots'), where('available','==',false));
+    const snap = await getDocs(q);
+    const el = document.getElementById('bookingsTable');
+
+    let rows=[];
+    snap.forEach(d=>{
+      const s={id:d.id,...d.data()};
+      if(dateF && s.date!==dateF) return;
+      if(statusF==='upcoming' && s.date<today) return;
+      if(statusF==='past' && s.date>=today) return;
+      rows.push(s);
+    });
+    rows.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+
+    if(!rows.length){ el.innerHTML='<div class="empty-state">Δεν βρέθηκαν κρατήσεις</div>'; return; }
+
+    el.innerHTML=`<table>
+      <thead><tr><th>Ημερομηνία</th><th>Ώρα</th><th>Ασκούμενος</th><th>Email</th><th>Τηλ.</th><th>Ενέργεια</th></tr></thead>
+      <tbody>${rows.map(s=>`
+        <tr>
+          <td>${fmtDate(s.date)}</td>
+          <td>${s.time} <small style="color:#888">(${s.duration||60} λεπ.)</small></td>
+          <td>${s.bookedBy?.name||'—'}</td>
+          <td>${s.bookedBy?.email||'—'}</td>
+          <td>${s.bookedBy?.phone||'—'}</td>
+          <td><button class="btn btn-sm btn-success" onclick="freeSlot('${s.id}')">Ακύρωση</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  };
+</script>
+</body>
+</html>
