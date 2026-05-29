@@ -235,11 +235,41 @@
           <option value="90">90 λεπτά</option>
         </select>
       </div>
+      <div class="dur-row">
+        <label>Μέγιστες κρατήσεις ανά ώρα:</label>
+        <select id="maxSel">
+          <option value="1">1 άτομο (ατομικό)</option>
+          <option value="2">2 άτομα</option>
+          <option value="3" selected>3 άτομα</option>
+          <option value="5">5 άτομα</option>
+          <option value="10">10 άτομα</option>
+        </select>
+      </div>
       <div class="days-grid" id="daysGrid"></div>
     </div>
     <div class="save-bar">
       <span>Οι αλλαγές εφαρμόζονται άμεσα στις κρατήσεις</span>
       <button class="btn btn-primary" onclick="saveSchedule()">💾 Αποθήκευση ωραρίου</button>
+    </div>
+
+    <!-- Lock slots -->
+    <div class="section-card" style="margin-top:20px">
+      <div class="section-title">🔒 Κλείδωμα συγκεκριμένης ώρας</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">
+        Κλείδωσε μια συγκεκριμένη ώρα (π.χ. για ατομικό personal training). Δεν θα εμφανίζεται ως διαθέσιμη.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:20px">
+        <div class="field" style="margin:0">
+          <label>Ημερομηνία</label>
+          <input type="date" id="lockDate"/>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Ώρα</label>
+          <input type="time" id="lockTime"/>
+        </div>
+        <button class="btn btn-primary" onclick="addLock()">Κλείδωμα</button>
+      </div>
+      <div id="locksWrap"><div class="loader"><div class="spin"></div></div></div>
     </div>
   </div>
 
@@ -326,7 +356,7 @@ window.showTab = function(t){
   document.querySelectorAll('.tab').forEach((el,i)=>{
     el.classList.toggle('active',['dash','schedule','bookings'][i]===t);
   });
-  if(t==='schedule') renderScheduleUI();
+  if(t==='schedule'){ renderScheduleUI(); loadLocks(); }
   if(t==='bookings') loadBookings();
 };
 
@@ -407,6 +437,7 @@ function renderScheduleUI(){
 
 window.saveSchedule = async function(){
   const dur = parseInt(document.getElementById('durSel').value);
+  const max = parseInt(document.getElementById('maxSel').value);
   const days={};
   [0,1,2,3,4,5,6].forEach(dow=>{
     const card=document.getElementById('day-'+dow);
@@ -416,11 +447,48 @@ window.saveSchedule = async function(){
       end:   document.getElementById('e-'+dow).value
     };
   });
-  schedule = {duration:dur, days};
+  schedule = {duration:dur, maxPerSlot:max, days};
   try {
     await setDoc(doc(db,'schedule','config'), schedule);
     alert('✅ Ωράριο αποθηκεύτηκε!');
   } catch(e){ alert('Σφάλμα αποθήκευσης: '+e.message); }
+};
+
+// ── Locks ──
+window.addLock = async function(){
+  const date = document.getElementById('lockDate').value;
+  const time = document.getElementById('lockTime').value;
+  if(!date||!time){ alert('Επίλεξε ημερομηνία και ώρα'); return; }
+  try {
+    const id = `${date}_${time.replace(':','-')}`;
+    await setDoc(doc(db,'locked',id),{ date, time, createdAt:serverTimestamp() });
+    loadLocks();
+  } catch(e){ alert('Σφάλμα: '+e.message); }
+};
+
+async function loadLocks(){
+  const el=document.getElementById('locksWrap');
+  if(!el) return;
+  try {
+    const snap=await getDocs(collection(db,'locked'));
+    const locks=[];
+    snap.forEach(d=>locks.push({id:d.id,...d.data()}));
+    locks.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    if(!locks.length){ el.innerHTML='<div class="empty">Δεν υπάρχουν κλειδωμένες ώρες</div>'; return; }
+    el.innerHTML=`<table>
+      <thead><tr><th>Ημερομηνία</th><th>Ώρα</th><th></th></tr></thead>
+      <tbody>${locks.map(l=>`<tr>
+        <td>${fmtDate(l.date)}</td>
+        <td><strong>${l.time}</strong></td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeLock('${l.id}')">Ξεκλείδωμα</button></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e){ el.innerHTML='<div class="empty">Σφάλμα φόρτωσης</div>'; }
+}
+
+window.removeLock = async function(id){
+  await deleteDoc(doc(db,'locked',id));
+  loadLocks();
 };
 
 // ── Bookings ──

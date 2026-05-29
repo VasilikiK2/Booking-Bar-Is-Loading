@@ -169,9 +169,16 @@
       color: var(--text);
       transition: all 0.15s;
     }
-    .slot:hover { border-color: var(--accent); color: var(--accent); }
+    .slot:hover:not(.full):not(.locked) { border-color: var(--accent); color: var(--accent); }
     .slot.selected { background: var(--accent); color: white; border-color: var(--accent); }
     .slot .dur { font-size: 0.72rem; font-weight: 400; opacity: 0.7; margin-top: 3px; }
+    .slot .spots { font-size: 0.72rem; margin-top: 4px; font-weight: 500; }
+    .slot.almost .spots { color: #f59e0b; }
+    .slot.full, .slot.locked {
+      background: #f8fafc; color: #cbd5e1; border-color: #e2e8f0;
+      cursor: not-allowed; pointer-events: none;
+    }
+    .slot.locked .spots { color: #94a3b8; }
     .no-slots { text-align: center; padding: 28px 0; color: var(--muted); font-size: 0.9rem; }
 
     /* Form */
@@ -455,34 +462,57 @@ async function pickDate(ds){
   const dayConf = schedule.days[String(dow)];
   if(!dayConf || !dayConf.active){ renderNoSlots(); return; }
 
-  // Load existing bookings
-  let booked = new Set();
+  const MAX = schedule.maxPerSlot || 3;
+  const dur = schedule.duration || 60;
+
+  // Load bookings count per time + locked slots
+  let bookingCount = {}, lockedSet = new Set();
   try {
-    const snap = await getDocs(query(collection(db,'bookings'), where('date','==',ds)));
-    snap.forEach(d => booked.add(d.data().time));
+    const [bSnap, lSnap] = await Promise.all([
+      getDocs(query(collection(db,'bookings'), where('date','==',ds))),
+      getDocs(query(collection(db,'locked'), where('date','==',ds)))
+    ]);
+    bSnap.forEach(d => {
+      const t = d.data().time;
+      bookingCount[t] = (bookingCount[t]||0) + 1;
+    });
+    lSnap.forEach(d => lockedSet.add(d.data().time));
   } catch(e){ console.error(e); }
 
   // Generate slots
-  const dur = schedule.duration || 60;
   const slots = [];
   let [sh,sm] = dayConf.start.split(':').map(Number);
   let [eh,em] = dayConf.end.split(':').map(Number);
   let cur = sh*60+sm, end = eh*60+em;
   while(cur+dur <= end){
     const t = `${pad(Math.floor(cur/60))}:${pad(cur%60)}`;
-    if(!booked.has(t)) slots.push(t);
+    slots.push(t);
     cur += dur;
   }
 
   if(!slots.length){ renderNoSlots(); return; }
 
   const wrap = document.getElementById('slotsWrap');
-  wrap.innerHTML = '<div class="slots-grid">' + slots.map(t => `
-    <div class="slot" onclick="pickTime('${t}',${dur})">
-      ${t}
-      <div class="dur">${dur} λεπτά</div>
-    </div>
-  `).join('') + '</div>';
+  wrap.innerHTML = '<div class="slots-grid">' + slots.map(t => {
+    const count = bookingCount[t]||0;
+    const locked = lockedSet.has(t);
+    const full = count >= MAX;
+    const remaining = MAX - count;
+    let cls = 'slot';
+    let spotsHtml = '';
+    if(locked){
+      cls += ' locked';
+      spotsHtml = `<div class="spots">🔒 Κλειδωμένο</div>`;
+    } else if(full){
+      cls += ' full';
+      spotsHtml = `<div class="spots">Πλήρες</div>`;
+    } else {
+      if(remaining === 1) cls += ' almost';
+      spotsHtml = `<div class="spots">${remaining}/${MAX} θέσεις</div>`;
+    }
+    const click = (!locked && !full) ? `onclick="pickTime('${t}',${dur})"` : '';
+    return `<div class="${cls}" ${click}>${t}<div class="dur">${dur} λεπτά</div>${spotsHtml}</div>`;
+  }).join('') + '</div>';
 }
 
 function renderNoSlots(){
@@ -514,10 +544,14 @@ window.doBook = async function(e){
   const email = document.getElementById('femail').value.trim();
   const phone = document.getElementById('fphone').value.trim();
   try {
-    // Check not already booked
-    const existing = await getDocs(query(collection(db,'bookings'), where('date','==',selDate), where('time','==',selTime)));
-    if(!existing.empty){
-      err.textContent='Λυπούμαστε, αυτή η ώρα μόλις κλείστηκε. Παρακαλώ επίλεξε άλλη.';
+    // Check not full / locked
+    const MAX = schedule.maxPerSlot || 3;
+    const [existing, lockedSnap] = await Promise.all([
+      getDocs(query(collection(db,'bookings'), where('date','==',selDate), where('time','==',selTime))),
+      getDocs(query(collection(db,'locked'), where('date','==',selDate), where('time','==',selTime)))
+    ]);
+    if(!lockedSnap.empty || existing.size >= MAX){
+      err.textContent='Λυπούμαστε, αυτή η ώρα δεν είναι πλέον διαθέσιμη. Παρακαλώ επίλεξε άλλη.';
       err.style.display='block';
       btn.disabled=false; btn.textContent='Επιβεβαίωση Κράτησης →';
       return;
