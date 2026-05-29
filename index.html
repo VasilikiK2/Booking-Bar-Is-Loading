@@ -1,100 +1,126 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Κρατήσεις Personal Training</title>
+  <title>Κρατήσεις — Bar is Loading</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-light: #d1fae5;
+      --accent-dark: #059669;
+      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+    }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f5f5f5;
-      color: #1a1a1a;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
 
+    /* Header */
     header {
-      background: #1a1a2e;
-      color: white;
-      padding: 24px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
       text-align: center;
     }
-    header h1 { font-size: 1.6rem; font-weight: 700; }
-    header p { margin-top: 6px; opacity: 0.75; font-size: 0.95rem; }
+    header .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    header .logo span { color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
 
-    .container { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 32px 16px 64px; }
 
-    /* Step indicators */
-    .steps {
+    /* Progress */
+    .progress {
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin-bottom: 32px;
-      align-items: center;
+      gap: 0;
+      margin-bottom: 28px;
     }
-    .step {
+    .p-step {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      color: #999;
+      gap: 5px;
     }
-    .step.active { color: #1a1a2e; font-weight: 600; }
-    .step.done { color: #22c55e; }
-    .step-num {
-      width: 26px; height: 26px;
+    .p-dot {
+      width: 30px; height: 30px;
       border-radius: 50%;
-      background: #e0e0e0;
+      background: var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 700;
+      transition: all 0.2s;
     }
-    .step.active .step-num { background: #1a1a2e; color: white; }
-    .step.done .step-num { background: #22c55e; color: white; }
-    .step-divider { flex: 1; height: 1px; background: #e0e0e0; max-width: 40px; }
+    .p-step.active .p-dot { background: var(--accent); color: white; }
+    .p-step.done .p-dot { background: var(--accent); color: white; }
+    .p-step.done .p-dot::after { content: "✓"; }
+    .p-step.done .p-num { display: none; }
+    .p-label { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+    .p-step.active .p-label { color: var(--accent); font-weight: 600; }
+    .p-line { flex: 1; height: 1px; background: var(--border); max-width: 48px; margin-bottom: 20px; }
 
-    /* Cards */
+    /* Card */
     .card {
-      background: white;
-      border-radius: 16px;
+      background: var(--card);
+      border-radius: 20px;
       padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      box-shadow: var(--shadow);
       display: none;
     }
     .card.active { display: block; }
-    .card h2 { font-size: 1.15rem; margin-bottom: 20px; color: #1a1a2e; }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
 
-    /* Calendar nav */
+    /* Calendar */
     .cal-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .cal-nav button {
-      background: none;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 6px 14px;
+      width: 34px; height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
       cursor: pointer;
       font-size: 1rem;
-      color: #1a1a2e;
-      transition: background 0.15s;
+      color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
     }
-    .cal-nav button:hover { background: #f0f0f0; }
-    .cal-nav span { font-weight: 600; font-size: 1rem; }
+    .cal-nav button:hover { background: var(--bg); border-color: var(--accent); }
+    .cal-nav .month { font-weight: 700; font-size: 1rem; }
 
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 4px;
     }
-    .cal-day-name {
+    .cal-head {
       text-align: center;
-      font-size: 0.75rem;
-      color: #999;
+      font-size: 0.72rem;
       font-weight: 600;
-      padding: 4px 0 8px;
+      color: var(--muted);
+      padding: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     .cal-day {
       aspect-ratio: 1;
@@ -102,477 +128,429 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
-      cursor: default;
+      font-size: 0.875rem;
+      font-weight: 500;
       border: 1.5px solid transparent;
       transition: all 0.15s;
+      cursor: default;
     }
-    .cal-day.empty { background: transparent; }
-    .cal-day.past { color: #ccc; }
-    .cal-day.today { border-color: #1a1a2e; font-weight: 700; }
+    .cal-day.past, .cal-day.off { color: #d1d5db; }
+    .cal-day.today { border-color: var(--accent); font-weight: 700; color: var(--accent); }
     .cal-day.available {
-      background: #f0fdf4;
-      border-color: #86efac;
-      color: #15803d;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-weight: 700;
       cursor: pointer;
-      font-weight: 600;
     }
-    .cal-day.available:hover { background: #dcfce7; border-color: #22c55e; }
-    .cal-day.selected { background: #1a1a2e !important; color: white !important; border-color: #1a1a2e !important; }
-    .cal-day.no-slots { color: #bbb; }
+    .cal-day.available:hover { background: var(--accent); color: white; transform: scale(1.08); }
+    .cal-day.selected { background: var(--accent) !important; color: white !important; border-color: var(--accent) !important; transform: scale(1.08); }
 
-    /* Slots */
+    /* Time slots */
+    .date-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
     .slots-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      margin-top: 16px;
     }
-    .slot-btn {
-      padding: 12px 8px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 10px;
-      background: white;
+    .slot {
+      padding: 14px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
       cursor: pointer;
       text-align: center;
-      transition: all 0.15s;
-      font-size: 0.9rem;
-    }
-    .slot-btn:hover { border-color: #1a1a2e; background: #f5f5ff; }
-    .slot-btn.selected { background: #1a1a2e; color: white; border-color: #1a1a2e; }
-    .slot-btn .duration { font-size: 0.75rem; opacity: 0.7; margin-top: 3px; }
-
-    .no-slots-msg {
-      text-align: center;
-      color: #999;
-      padding: 24px 0;
       font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.15s;
     }
+    .slot:hover { border-color: var(--accent); color: var(--accent); }
+    .slot.selected { background: var(--accent); color: white; border-color: var(--accent); }
+    .slot .dur { font-size: 0.72rem; font-weight: 400; opacity: 0.7; margin-top: 3px; }
+    .no-slots { text-align: center; padding: 28px 0; color: var(--muted); font-size: 0.9rem; }
 
     /* Form */
-    .form-group { margin-bottom: 20px; }
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #444;
+    .summary-box {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
     }
-    input[type="text"], input[type="email"], input[type="tel"] {
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-row:last-child { border: none; }
+    .summary-row .lbl { color: var(--muted); }
+    .summary-row .val { font-weight: 600; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .field input {
       width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #e0e0e0;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--card);
       outline: none;
       transition: border-color 0.15s;
     }
-    input:focus { border-color: #1a1a2e; }
-
-    /* Booking summary */
-    .booking-summary {
-      background: #f8f9ff;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-    .booking-summary .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 0.9rem;
-      border-bottom: 1px solid #eee;
-    }
-    .booking-summary .row:last-child { border: none; }
-    .booking-summary .row span:first-child { color: #666; }
-    .booking-summary .row span:last-child { font-weight: 600; }
+    .field input:focus { border-color: var(--accent); }
 
     /* Buttons */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 13px 24px;
-      border-radius: 10px;
-      font-size: 1rem;
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.15s;
-      width: 100%;
     }
-    .btn-primary { background: #1a1a2e; color: white; }
-    .btn-primary:hover { background: #2d2d4e; }
-    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-outline {
-      background: white;
-      color: #1a1a2e;
-      border: 1.5px solid #1a1a2e;
-      margin-bottom: 12px;
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+    .btn-ghost {
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      margin-top: 10px;
     }
-    .btn-outline:hover { background: #f5f5ff; }
+    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
 
-    /* Success */
-    .success-icon {
-      width: 64px; height: 64px;
-      background: #dcfce7;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 20px;
-    }
-    .success-card { text-align: center; }
-    .success-card h2 { margin-bottom: 8px; }
-    .success-card p { color: #666; font-size: 0.95rem; margin-bottom: 24px; }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 32px;
-      color: #999;
-    }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid #e0e0e0;
-      border-top-color: #1a1a2e;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .error-msg {
+    .err {
       background: #fef2f2;
-      border: 1px solid #fca5a5;
+      border: 1px solid #fecaca;
       color: #dc2626;
       border-radius: 8px;
-      padding: 12px;
-      font-size: 0.9rem;
+      padding: 10px 14px;
+      font-size: 0.85rem;
       margin-top: 12px;
       display: none;
     }
+
+    /* Success */
+    .success-wrap { text-align: center; }
+    .check-icon {
+      width: 64px; height: 64px;
+      background: var(--accent-light);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 18px;
+    }
+    .success-wrap h2 { font-size: 1.2rem; margin-bottom: 6px; }
+    .success-wrap p { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; }
+
+    /* Loader */
+    .loader { text-align: center; padding: 24px; color: var(--muted); font-size: 0.875rem; }
+    .spin {
+      width: 28px; height: 28px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>💪 Κρατήσεις Personal Training</h1>
-  <p>Κλείστε το session σας εύκολα και γρήγορα</p>
+  <div class="logo">Bar is <span>Loading</span></div>
+  <p>Κλείστε το personal training session σας</p>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-  <!-- Step indicators -->
-  <div class="steps">
-    <div class="step active" id="s1">
-      <div class="step-num">1</div>
-      <span>Ημερομηνία</span>
+  <div class="progress" id="progress">
+    <div class="p-step active" id="ps1">
+      <div class="p-dot"><span class="p-num">1</span></div>
+      <div class="p-label">Ημερομηνία</div>
     </div>
-    <div class="step-divider"></div>
-    <div class="step" id="s2">
-      <div class="step-num">2</div>
-      <span>Ώρα</span>
+    <div class="p-line"></div>
+    <div class="p-step" id="ps2">
+      <div class="p-dot"><span class="p-num">2</span></div>
+      <div class="p-label">Ώρα</div>
     </div>
-    <div class="step-divider"></div>
-    <div class="step" id="s3">
-      <div class="step-num">3</div>
-      <span>Στοιχεία</span>
+    <div class="p-line"></div>
+    <div class="p-step" id="ps3">
+      <div class="p-dot"><span class="p-num">3</span></div>
+      <div class="p-label">Στοιχεία</div>
     </div>
-    <div class="step-divider"></div>
-    <div class="step" id="s4">
-      <div class="step-num">4</div>
-      <span>Επιβεβαίωση</span>
+    <div class="p-line"></div>
+    <div class="p-step" id="ps4">
+      <div class="p-dot"><span class="p-num">4</span></div>
+      <div class="p-label">Επιβεβαίωση</div>
     </div>
   </div>
 
-  <!-- Step 1: Calendar -->
+  <!-- Step 1 -->
   <div class="card active" id="step1">
-    <h2>📅 Επίλεξε ημερομηνία</h2>
+    <div class="card-title">Επίλεξε ημερομηνία</div>
     <div class="cal-nav">
-      <button id="prevMonth">‹</button>
-      <span id="calTitle"></span>
-      <button id="nextMonth">›</button>
+      <button id="prevM">&#8249;</button>
+      <span class="month" id="monthLabel"></span>
+      <button id="nextM">&#8250;</button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
-  <!-- Step 2: Time slots -->
+  <!-- Step 2 -->
   <div class="card" id="step2">
-    <h2>⏰ Επίλεξε ώρα — <span id="selectedDateLabel"></span></h2>
-    <div id="slotsContainer">
-      <div class="loading"><div class="spinner"></div>Φόρτωση διαθέσιμων ωρών…</div>
-    </div>
-    <button class="btn btn-outline" style="margin-top:20px" onclick="goToStep(1)">← Πίσω</button>
+    <div class="card-title">Επίλεξε ώρα</div>
+    <div class="date-label" id="dateLbl"></div>
+    <div id="slotsWrap"><div class="loader"><div class="spin"></div>Φόρτωση…</div></div>
+    <button class="btn btn-ghost" onclick="goStep(1)">← Πίσω</button>
   </div>
 
-  <!-- Step 3: Personal details -->
+  <!-- Step 3 -->
   <div class="card" id="step3">
-    <h2>👤 Τα στοιχεία σου</h2>
-    <div class="booking-summary" id="bookingSummary"></div>
-    <form id="bookingForm" onsubmit="submitBooking(event)">
-      <div class="form-group">
-        <label for="name">Ονοματεπώνυμο *</label>
-        <input type="text" id="name" placeholder="π.χ. Μαρία Παπαδοπούλου" required />
+    <div class="card-title">Τα στοιχεία σου</div>
+    <div class="summary-box" id="summaryBox"></div>
+    <form onsubmit="doBook(event)">
+      <div class="field">
+        <label>Ονοματεπώνυμο *</label>
+        <input type="text" id="fname" placeholder="π.χ. Μαρία Παπαδοπούλου" required/>
       </div>
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input type="email" id="email" placeholder="email@example.com" required />
+      <div class="field">
+        <label>Email *</label>
+        <input type="email" id="femail" placeholder="email@example.com" required/>
       </div>
-      <div class="form-group">
-        <label for="phone">Τηλέφωνο (προαιρετικό)</label>
-        <input type="tel" id="phone" placeholder="π.χ. 6912345678" />
+      <div class="field">
+        <label>Τηλέφωνο (προαιρετικό)</label>
+        <input type="tel" id="fphone" placeholder="6912345678"/>
       </div>
-      <div class="error-msg" id="errorMsg"></div>
+      <div class="err" id="ferr"></div>
       <button type="submit" class="btn btn-primary" id="submitBtn">Επιβεβαίωση Κράτησης →</button>
     </form>
-    <button class="btn btn-outline" style="margin-top:12px" onclick="goToStep(2)">← Πίσω</button>
+    <button class="btn btn-ghost" onclick="goStep(2)">← Πίσω</button>
   </div>
 
-  <!-- Step 4: Success -->
-  <div class="card success-card" id="step4">
-    <div class="success-icon">✅</div>
-    <h2>Η κράτησή σου καταχωρήθηκε!</h2>
-    <p>Θα λάβεις επιβεβαίωση στο email σου σύντομα.</p>
-    <div class="booking-summary" id="confirmSummary"></div>
-    <button class="btn btn-primary" onclick="location.reload()">Νέα Κράτηση</button>
+  <!-- Step 4 -->
+  <div class="card" id="step4">
+    <div class="success-wrap">
+      <div class="check-icon">✓</div>
+      <h2>Η κράτησή σου καταχωρήθηκε!</h2>
+      <p>Θα επικοινωνήσουμε μαζί σου σύντομα για επιβεβαίωση.</p>
+      <div class="summary-box" id="confirmBox"></div>
+      <button class="btn btn-primary" onclick="location.reload()">Νέα Κράτηση</button>
+    </div>
   </div>
 
 </div>
 
-<!-- Firebase -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, query, where, getDocs, doc, updateDoc, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // ── ΑΛΛΑΞΕ ΑΥΤΑ με τα στοιχεία σου από το Firebase Console ──
-  const firebaseConfig = {
-    apiKey:            "AIzaSyATXEnqexj5iUAoMWgA64mKhzeig_Tje_Q",
-    authDomain:        "bar-is-loading-booking.firebaseapp.com",
-    projectId:         "bar-is-loading-booking",
-    storageBucket:     "bar-is-loading-booking.firebasestorage.app",
-    messagingSenderId: "923651403991",
-    appId:             "1:923651403991:web:8a36f66e2ab9ed85300092",
-    measurementId:     "G-JHVSGRNH4V"
-  };
-  // ─────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyATXEnqexj5iUAoMWgA64mKhzeig_Tje_Q",
+  authDomain:        "bar-is-loading-booking.firebaseapp.com",
+  projectId:         "bar-is-loading-booking",
+  storageBucket:     "bar-is-loading-booking.firebasestorage.app",
+  messagingSenderId: "923651403991",
+  appId:             "1:923651403991:web:8a36f66e2ab9ed85300092",
+  measurementId:     "G-JHVSGRNH4V"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-  // ── State ──
-  let currentYear, currentMonth;
-  let selectedDate = null;
-  let selectedSlot = null;
-  let availableDates = {}; // "YYYY-MM-DD" → [slot docs]
+// ── Helpers ──
+const pad = n => String(n).padStart(2,'0');
+const MONTHS = ["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος","Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
+const MONTHS_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
+const DAYS_SH = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
 
-  const MONTHS_EL = ["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος",
-                     "Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
-  const DAYS_EL   = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
-  const MONTHS_EL_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου",
-                          "Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
+function dateStr(y,m,d){ return `${y}-${pad(m)}-${pad(d)}`; }
+function fmtDate(s){
+  const [y,m,d]=s.split('-').map(Number);
+  return `${DAYS_SH[new Date(y,m-1,d).getDay()]} ${d} ${MONTHS_GEN[m-1]} ${y}`;
+}
 
-  function pad(n){ return String(n).padStart(2,'0'); }
+// ── State ──
+let cy, cm, schedule=null, selDate=null, selTime=null, selDur=60;
 
-  function formatDateLabel(dateStr){
-    const [y,m,d] = dateStr.split('-').map(Number);
-    const dow = new Date(y,m-1,d).getDay();
-    return `${DAYS_EL[dow]} ${d} ${MONTHS_EL_GEN[m-1]} ${y}`;
+// ── Load schedule ──
+async function loadSchedule(){
+  try {
+    const snap = await getDoc(doc(db,'schedule','config'));
+    if(snap.exists()) schedule = snap.data();
+  } catch(e){ console.error(e); }
+  if(!schedule){ schedule = { duration:60, days:{} }; }
+  const now = new Date();
+  cy = now.getFullYear(); cm = now.getMonth()+1;
+  renderCal(cy, cm);
+}
+
+// ── Render calendar ──
+function renderCal(year, month){
+  cy=year; cm=month;
+  document.getElementById('monthLabel').textContent = `${MONTHS[month-1]} ${year}`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  DAYS_SH.forEach(d => {
+    const el = document.createElement('div');
+    el.className='cal-head'; el.textContent=d; grid.appendChild(el);
+  });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(year, month-1, 1).getDay();
+  const days = new Date(year, month, 0).getDate();
+  for(let i=0;i<firstDay;i++){
+    const el=document.createElement('div'); el.className='cal-day'; grid.appendChild(el);
   }
-
-  // ── Load slots for current month ──
-  async function loadMonth(year, month){
-    availableDates = {};
-    try {
-      const from = `${year}-${pad(month)}-01`;
-      const to   = `${year}-${pad(month)}-31`;
-      const q = query(
-        collection(db,"slots"),
-        where("date",">=",from),
-        where("date","<=",to),
-        where("available","==",true)
-      );
-      const snap = await getDocs(q);
-      snap.forEach(d => {
-        const data = d.data();
-        if(!availableDates[data.date]) availableDates[data.date] = [];
-        availableDates[data.date].push({ id: d.id, ...data });
-      });
-    } catch(e) {
-      console.error("Firestore error:", e);
-    }
-    renderCalendar(year, month);
-  }
-
-  // ── Calendar ──
-  function renderCalendar(year, month){
-    currentYear = year; currentMonth = month;
-    document.getElementById('calTitle').textContent = `${MONTHS_EL[month-1]} ${year}`;
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
-
-    DAYS_EL.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'cal-day-name'; el.textContent = d;
-      grid.appendChild(el);
-    });
-
-    const today = new Date(); today.setHours(0,0,0,0);
-    const firstDay = new Date(year, month-1, 1).getDay();
-    const daysInMonth = new Date(year, month, 0).getDate();
-
-    for(let i=0;i<firstDay;i++){
-      const el = document.createElement('div');
-      el.className='cal-day empty'; grid.appendChild(el);
-    }
-
-    for(let d=1;d<=daysInMonth;d++){
-      const dateStr = `${year}-${pad(month)}-${pad(d)}`;
-      const thisDate = new Date(year, month-1, d);
-      const el = document.createElement('div');
-      el.className = 'cal-day';
-      el.textContent = d;
-
-      if(thisDate < today){
-        el.classList.add('past');
-      } else if(thisDate.getTime()===today.getTime()){
-        el.classList.add('today');
-        if(availableDates[dateStr]){ el.classList.add('available'); el.onclick=()=>pickDate(dateStr); }
-      } else if(availableDates[dateStr]){
+  for(let d=1;d<=days;d++){
+    const dt = new Date(year,month-1,d);
+    const ds = dateStr(year,month,d);
+    const dow = dt.getDay();
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    if(dt < today){
+      el.classList.add('past');
+    } else {
+      const dayConf = schedule.days[String(dow)];
+      if(dayConf && dayConf.active){
         el.classList.add('available');
-        el.onclick = () => pickDate(dateStr);
+        el.onclick = () => pickDate(ds);
+        if(ds===selDate) el.classList.add('selected');
       } else {
-        el.classList.add('no-slots');
+        el.classList.add('off');
       }
-
-      if(selectedDate===dateStr) el.classList.add('selected');
-      grid.appendChild(el);
+      if(dt.getTime()===today.getTime()) el.classList.add('today');
     }
+    grid.appendChild(el);
+  }
+}
+
+document.getElementById('prevM').onclick = () => { let m=cm-1,y=cy; if(m<1){m=12;y--;} renderCal(y,m); };
+document.getElementById('nextM').onclick = () => { let m=cm+1,y=cy; if(m>12){m=1;y++;} renderCal(y,m); };
+
+// ── Pick date ──
+async function pickDate(ds){
+  selDate = ds; selTime = null;
+  renderCal(cy,cm);
+  goStep(2);
+  document.getElementById('dateLbl').textContent = fmtDate(ds);
+  document.getElementById('slotsWrap').innerHTML = '<div class="loader"><div class="spin"></div>Φόρτωση ωρών…</div>';
+
+  const [y,m,d] = ds.split('-').map(Number);
+  const dow = new Date(y,m-1,d).getDay();
+  const dayConf = schedule.days[String(dow)];
+  if(!dayConf || !dayConf.active){ renderNoSlots(); return; }
+
+  // Load existing bookings
+  let booked = new Set();
+  try {
+    const snap = await getDocs(query(collection(db,'bookings'), where('date','==',ds)));
+    snap.forEach(d => booked.add(d.data().time));
+  } catch(e){ console.error(e); }
+
+  // Generate slots
+  const dur = schedule.duration || 60;
+  const slots = [];
+  let [sh,sm] = dayConf.start.split(':').map(Number);
+  let [eh,em] = dayConf.end.split(':').map(Number);
+  let cur = sh*60+sm, end = eh*60+em;
+  while(cur+dur <= end){
+    const t = `${pad(Math.floor(cur/60))}:${pad(cur%60)}`;
+    if(!booked.has(t)) slots.push(t);
+    cur += dur;
   }
 
-  document.getElementById('prevMonth').onclick = () => {
-    let m = currentMonth-1, y = currentYear;
-    if(m<1){m=12;y--;}
-    loadMonth(y,m);
-  };
-  document.getElementById('nextMonth').onclick = () => {
-    let m = currentMonth+1, y = currentYear;
-    if(m>12){m=1;y++;}
-    loadMonth(y,m);
-  };
+  if(!slots.length){ renderNoSlots(); return; }
 
-  // ── Pick date → show slots ──
-  function pickDate(dateStr){
-    selectedDate = dateStr;
-    selectedSlot = null;
-    document.getElementById('selectedDateLabel').textContent = formatDateLabel(dateStr);
-    renderCalendar(currentYear, currentMonth);
-    goToStep(2);
-    renderSlots(availableDates[dateStr] || []);
-  }
+  const wrap = document.getElementById('slotsWrap');
+  wrap.innerHTML = '<div class="slots-grid">' + slots.map(t => `
+    <div class="slot" onclick="pickTime('${t}',${dur})">
+      ${t}
+      <div class="dur">${dur} λεπτά</div>
+    </div>
+  `).join('') + '</div>';
+}
 
-  function renderSlots(slots){
-    const cont = document.getElementById('slotsContainer');
-    if(!slots.length){
-      cont.innerHTML = '<div class="no-slots-msg">Δεν υπάρχουν διαθέσιμες ώρες για αυτή την ημέρα.</div>';
+function renderNoSlots(){
+  document.getElementById('slotsWrap').innerHTML = '<div class="no-slots">Δεν υπάρχουν διαθέσιμες ώρες για αυτή την ημέρα.</div>';
+}
+
+window.pickTime = function(t, dur){
+  selTime = t; selDur = dur;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  setTimeout(()=>{
+    goStep(3);
+    document.getElementById('summaryBox').innerHTML = `
+      <div class="summary-row"><span class="lbl">Ημερομηνία</span><span class="val">${fmtDate(selDate)}</span></div>
+      <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>
+      <div class="summary-row"><span class="lbl">Διάρκεια</span><span class="val">${selDur} λεπτά</span></div>
+    `;
+  }, 200);
+};
+
+// ── Book ──
+window.doBook = async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('ferr');
+  err.style.display='none';
+  btn.disabled=true; btn.textContent='Αποστολή…';
+  const name  = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const phone = document.getElementById('fphone').value.trim();
+  try {
+    // Check not already booked
+    const existing = await getDocs(query(collection(db,'bookings'), where('date','==',selDate), where('time','==',selTime)));
+    if(!existing.empty){
+      err.textContent='Λυπούμαστε, αυτή η ώρα μόλις κλείστηκε. Παρακαλώ επίλεξε άλλη.';
+      err.style.display='block';
+      btn.disabled=false; btn.textContent='Επιβεβαίωση Κράτησης →';
       return;
     }
-    slots.sort((a,b)=>a.time.localeCompare(b.time));
-    cont.innerHTML = '<div class="slots-grid">' + slots.map(s => `
-      <button class="slot-btn" onclick="pickSlot('${s.id}','${s.time}',${s.duration||60})">
-        <strong>${s.time}</strong>
-        <div class="duration">${s.duration||60} λεπτά</div>
-      </button>
-    `).join('') + '</div>';
-  }
-
-  // ── Pick slot ──
-  window.pickSlot = function(id, time, duration){
-    selectedSlot = { id, time, duration };
-    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
-    setTimeout(() => goToStep(3), 250);
-    updateSummary();
-  };
-
-  function updateSummary(){
-    const html = `
-      <div class="row"><span>Ημερομηνία</span><span>${formatDateLabel(selectedDate)}</span></div>
-      <div class="row"><span>Ώρα</span><span>${selectedSlot.time}</span></div>
-      <div class="row"><span>Διάρκεια</span><span>${selectedSlot.duration} λεπτά</span></div>
+    await addDoc(collection(db,'bookings'),{ date:selDate, time:selTime, duration:selDur, name, email, phone, createdAt:serverTimestamp() });
+    document.getElementById('confirmBox').innerHTML = `
+      <div class="summary-row"><span class="lbl">Όνομα</span><span class="val">${name}</span></div>
+      <div class="summary-row"><span class="lbl">Email</span><span class="val">${email}</span></div>
+      <div class="summary-row"><span class="lbl">Ημερομηνία</span><span class="val">${fmtDate(selDate)}</span></div>
+      <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>
     `;
-    document.getElementById('bookingSummary').innerHTML = html;
+    goStep(4);
+  } catch(ex){
+    err.textContent='Σφάλμα. Παρακαλώ δοκίμασε ξανά.';
+    err.style.display='block';
+    btn.disabled=false; btn.textContent='Επιβεβαίωση Κράτησης →';
+    console.error(ex);
   }
+};
 
-  // ── Submit booking ──
-  window.submitBooking = async function(e){
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    const err = document.getElementById('errorMsg');
-    err.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Αποστολή…';
+// ── Navigation ──
+window.goStep = function(n){
+  document.querySelectorAll('.card').forEach((c,i)=> c.classList.toggle('active',i===n-1));
+  [1,2,3,4].forEach(i=>{
+    const el=document.getElementById('ps'+i);
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+};
 
-    const name  = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-
-    try {
-      const slotRef = doc(db, 'slots', selectedSlot.id);
-      // Check still available
-      const snap = await getDocs(query(collection(db,'slots'),where('__name__','==',selectedSlot.id)));
-      let stillAvail = true;
-      snap.forEach(d => { if(!d.data().available) stillAvail = false; });
-
-      if(!stillAvail){
-        err.textContent = 'Λυπούμαστε, αυτή η ώρα μόλις κλείστηκε. Παρακαλώ επίλεξε άλλη.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Επιβεβαίωση Κράτησης →';
-        return;
-      }
-
-      await updateDoc(slotRef, {
-        available: false,
-        bookedBy: { name, email, phone },
-        bookedAt: serverTimestamp()
-      });
-
-      // Success
-      document.getElementById('confirmSummary').innerHTML = `
-        <div class="row"><span>Ονοματεπώνυμο</span><span>${name}</span></div>
-        <div class="row"><span>Email</span><span>${email}</span></div>
-        <div class="row"><span>Ημερομηνία</span><span>${formatDateLabel(selectedDate)}</span></div>
-        <div class="row"><span>Ώρα</span><span>${selectedSlot.time}</span></div>
-        <div class="row"><span>Διάρκεια</span><span>${selectedSlot.duration} λεπτά</span></div>
-      `;
-      goToStep(4);
-
-    } catch(ex){
-      err.textContent = 'Σφάλμα κατά την κράτηση. Παρακαλώ δοκίμασε ξανά.';
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Επιβεβαίωση Κράτησης →';
-      console.error(ex);
-    }
-  };
-
-  // ── Step navigation ──
-  window.goToStep = function(n){
-    document.querySelectorAll('.card').forEach((c,i) => {
-      c.classList.toggle('active', i===n-1);
-    });
-    [1,2,3,4].forEach(i => {
-      const el = document.getElementById('s'+i);
-      el.classList.remove('active','done');
-      if(i<n) el.classList.add('done');
-      else if(i===n) el.classList.add('active');
-    });
-    window.scrollTo({top:0, behavior:'smooth'});
-  };
-
-  // ── Init ──
-  const now = new Date();
-  loadMonth(now.getFullYear(), now.getMonth()+1);
+loadSchedule();
 </script>
-
 </body>
 </html>
