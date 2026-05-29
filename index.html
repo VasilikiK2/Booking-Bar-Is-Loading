@@ -45,17 +45,18 @@
     .auth-btn img { width:18px; height:18px; border-radius:50%; }
     .user-menu {
       position:absolute; top:calc(100% + 8px); right:0;
-      background:var(--card); border:1px solid var(--border2);
-      border-radius:12px; padding:8px; min-width:180px;
-      box-shadow:0 8px 32px rgba(0,0,0,.5); display:none; z-index:100;
+      background:#1a1a2e; border:1px solid var(--border2);
+      border-radius:12px; padding:8px; min-width:190px;
+      box-shadow:0 8px 32px rgba(0,0,0,.7); display:none; z-index:100;
     }
     .user-menu.open { display:block; }
     .user-menu-item {
-      padding:9px 12px; border-radius:8px; cursor:pointer;
-      font-size:.82rem; color:var(--text2); transition:all .15s;
+      padding:10px 14px; border-radius:8px; cursor:pointer;
+      font-size:.85rem; color:#c0c0e0; font-weight:500; transition:all .15s;
     }
-    .user-menu-item:hover { background:var(--card2); color:var(--text); }
-    .user-menu-item.danger:hover { background:var(--red-dim); color:var(--red); }
+    .user-menu-item:hover { background:var(--card2); color:white; }
+    .user-menu-item.danger { color:#f87171; }
+    .user-menu-item.danger:hover { background:rgba(248,113,113,.15); color:#f87171; }
 
     .wrap { max-width:520px; margin:0 auto; padding:28px 16px 80px; }
 
