@@ -7,475 +7,314 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #08080f;
-      --surface: #0f0f1a;
-      --card: #13131f;
-      --card2: #1a1a2e;
-      --border: #1e1e35;
-      --border2: #2a2a45;
-      --text: #f0f0ff;
-      --text2: #a0a0c0;
-      --muted: #505070;
-      --blue: #4f8ef7;
-      --blue2: #6fa3ff;
-      --blue-dim: rgba(79,142,247,0.12);
-      --blue-glow: rgba(79,142,247,0.25);
-      --green: #34d399;
-      --green-dim: rgba(52,211,153,0.12);
-      --amber: #fbbf24;
-      --red: #f87171;
+      --bg: #08080f; --surface: #0f0f1a; --card: #13131f; --card2: #1a1a2e;
+      --border: #1e1e35; --border2: #2a2a45;
+      --text: #f0f0ff; --text2: #a0a0c0; --muted: #505070;
+      --blue: #4f8ef7; --blue2: #6fa3ff; --blue-dim: rgba(79,142,247,0.12); --blue-glow: rgba(79,142,247,0.25);
+      --green: #34d399; --green-dim: rgba(52,211,153,0.12);
+      --amber: #fbbf24; --red: #f87171; --red-dim: rgba(248,113,113,0.1);
     }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
+    /* Header */
     header {
-      background: linear-gradient(135deg, #0d0d20 0%, #111128 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 28px 24px 24px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      background:linear-gradient(135deg,#0d0d20 0%,#111128 100%);
+      border-bottom:1px solid var(--border);
+      padding:20px 24px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:relative; overflow:hidden;
     }
     header::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: 50%; transform: translateX(-50%);
-      width: 400px; height: 200px;
-      background: radial-gradient(ellipse, rgba(79,142,247,0.15) 0%, transparent 70%);
-      pointer-events: none;
+      content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+      width:500px; height:200px;
+      background:radial-gradient(ellipse,rgba(79,142,247,0.12) 0%,transparent 70%);
+      pointer-events:none;
     }
-    .logo {
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: -1px;
-      position: relative;
+    .logo { font-size:1.3rem; font-weight:900; letter-spacing:-0.5px; position:relative; }
+    .logo span { color:var(--blue2); }
+    .header-right { position:relative; }
+    .auth-btn {
+      display:flex; align-items:center; gap:8px;
+      padding:8px 16px;
+      background:var(--card2); border:1px solid var(--border2);
+      border-radius:10px; cursor:pointer; font-size:.82rem; font-weight:600;
+      color:var(--text2); font-family:inherit; transition:all .15s;
     }
-    .logo-bar { color: var(--text); }
-    .logo-accent { color: var(--blue2); }
-    .logo-dot { color: var(--blue); opacity: .5; }
-    header p {
-      color: var(--text2);
-      font-size: 0.85rem;
-      margin-top: 6px;
-      font-weight: 400;
-      position: relative;
+    .auth-btn:hover { border-color:var(--blue); color:var(--blue2); }
+    .auth-btn img { width:18px; height:18px; border-radius:50%; }
+    .user-menu {
+      position:absolute; top:calc(100% + 8px); right:0;
+      background:var(--card); border:1px solid var(--border2);
+      border-radius:12px; padding:8px; min-width:180px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5); display:none; z-index:100;
     }
+    .user-menu.open { display:block; }
+    .user-menu-item {
+      padding:9px 12px; border-radius:8px; cursor:pointer;
+      font-size:.82rem; color:var(--text2); transition:all .15s;
+    }
+    .user-menu-item:hover { background:var(--card2); color:var(--text); }
+    .user-menu-item.danger:hover { background:var(--red-dim); color:var(--red); }
 
-    .wrap { max-width: 520px; margin: 0 auto; padding: 32px 16px 80px; }
+    .wrap { max-width:520px; margin:0 auto; padding:28px 16px 80px; }
 
-    /* ── Progress ── */
-    .progress {
-      display: flex;
-      align-items: center;
-      margin-bottom: 28px;
+    /* Auth gate */
+    .auth-gate {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:20px; padding:36px 28px; text-align:center;
+      margin-bottom:24px;
     }
-    .p-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex: 0 0 auto;
+    .auth-gate .icon { font-size:2.5rem; margin-bottom:14px; }
+    .auth-gate h2 { font-size:1.1rem; font-weight:800; margin-bottom:8px; }
+    .auth-gate p { color:var(--text2); font-size:.875rem; margin-bottom:24px; line-height:1.6; }
+    .google-btn {
+      display:inline-flex; align-items:center; gap:10px;
+      padding:13px 24px; border-radius:12px; cursor:pointer;
+      background:white; color:#1a1a1a; font-weight:700; font-size:.9rem;
+      font-family:inherit; border:none; transition:all .15s;
+      box-shadow:0 2px 12px rgba(0,0,0,.3);
     }
+    .google-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.4); }
+    .google-btn svg { width:20px; height:20px; }
+
+    /* Progress */
+    .progress { display:flex; align-items:center; margin-bottom:28px; }
+    .p-step { display:flex; flex-direction:column; align-items:center; gap:6px; flex:0 0 auto; }
     .p-dot {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--card2);
-      border: 1.5px solid var(--border2);
-      color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .25s;
+      width:32px; height:32px; border-radius:50%;
+      background:var(--card2); border:1.5px solid var(--border2);
+      color:var(--muted); font-size:.78rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center; transition:all .25s;
     }
-    .p-step.active .p-dot {
-      background: var(--blue);
-      border-color: var(--blue);
-      color: white;
-      box-shadow: 0 0 16px var(--blue-glow);
-    }
-    .p-step.done .p-dot {
-      background: var(--blue-dim);
-      border-color: var(--blue);
-      color: var(--blue2);
-    }
-    .p-label {
-      font-size: 0.68rem;
-      color: var(--muted);
-      font-weight: 500;
-      letter-spacing: .03em;
-      text-transform: uppercase;
-    }
-    .p-step.active .p-label { color: var(--blue2); }
-    .p-step.done .p-label { color: var(--blue); }
-    .p-line { flex: 1; height: 1px; background: var(--border2); margin: 0 6px 20px; }
+    .p-step.active .p-dot { background:var(--blue); border-color:var(--blue); color:white; box-shadow:0 0 16px var(--blue-glow); }
+    .p-step.done .p-dot { background:var(--blue-dim); border-color:var(--blue); color:var(--blue2); }
+    .p-label { font-size:.68rem; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:.03em; }
+    .p-step.active .p-label { color:var(--blue2); }
+    .p-step.done .p-label { color:var(--blue); }
+    .p-line { flex:1; height:1px; background:var(--border2); margin:0 6px 20px; }
 
-    /* ── Card ── */
+    /* Card */
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px;
-      display: none;
-      animation: fadeUp .3s ease;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:20px; padding:28px; display:none;
+      animation:fadeUp .3s ease;
     }
-    .card.active { display: block; }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(12px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
+    .card.active { display:block; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
     .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 22px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size:1rem; font-weight:700; color:var(--text);
+      margin-bottom:22px; display:flex; align-items:center; gap:8px;
     }
-    .card-title::before {
-      content: '';
-      display: inline-block;
-      width: 3px; height: 18px;
-      background: var(--blue);
-      border-radius: 2px;
-    }
+    .card-title::before { content:''; display:inline-block; width:3px; height:18px; background:var(--blue); border-radius:2px; }
 
-    /* ── Calendar ── */
-    .cal-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+    /* Calendar */
+    .cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
     .cal-nav button {
-      width: 36px; height: 36px;
-      border: 1px solid var(--border2);
-      border-radius: 10px;
-      background: var(--card2);
-      color: var(--text2);
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .15s;
+      width:36px; height:36px; border:1px solid var(--border2); border-radius:10px;
+      background:var(--card2); color:var(--text2); font-size:1.1rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all .15s;
     }
-    .cal-nav button:hover { border-color: var(--blue); color: var(--blue); }
-    .cal-nav .month-label { font-weight: 700; font-size: 1rem; color: var(--text); }
+    .cal-nav button:hover { border-color:var(--blue); color:var(--blue); }
+    .cal-nav .month-label { font-weight:700; font-size:1rem; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+    .cal-head { text-align:center; font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; padding-bottom:10px; }
+    .cal-day { aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.85rem; font-weight:500; border:1px solid transparent; cursor:default; transition:all .15s; gap:2px; }
+    .cal-day.past,.cal-day.off { color:var(--muted); opacity:.35; }
+    .cal-day.today { border-color:var(--border2); color:var(--text2); }
+    .cal-day.available { background:var(--blue-dim); border-color:rgba(79,142,247,.3); color:var(--blue2); font-weight:700; cursor:pointer; }
+    .cal-day.available:hover { background:rgba(79,142,247,.22); border-color:var(--blue); transform:scale(1.08); box-shadow:0 0 12px var(--blue-glow); }
+    .cal-day.selected { background:var(--blue)!important; border-color:var(--blue)!important; color:white!important; transform:scale(1.08); box-shadow:0 0 16px var(--blue-glow); }
+    .cal-dot { width:4px; height:4px; background:var(--blue); border-radius:50%; opacity:.7; }
 
-    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
-    .cal-head {
-      text-align: center;
-      font-size: .68rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      padding-bottom: 10px;
-    }
-    .cal-day {
-      aspect-ratio: 1;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: .85rem;
-      font-weight: 500;
-      border: 1px solid transparent;
-      cursor: default;
-      transition: all .15s;
-      gap: 2px;
-    }
-    .cal-day.past { color: var(--muted); opacity: .4; }
-    .cal-day.off { color: var(--muted); opacity: .3; }
-    .cal-day.today {
-      border-color: var(--border2);
-      color: var(--text2);
-    }
-    .cal-day.available {
-      background: var(--blue-dim);
-      border-color: rgba(79,142,247,.3);
-      color: var(--blue2);
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .cal-day.available:hover {
-      background: rgba(79,142,247,.22);
-      border-color: var(--blue);
-      transform: scale(1.08);
-      box-shadow: 0 0 12px var(--blue-glow);
-    }
-    .cal-day.selected {
-      background: var(--blue) !important;
-      border-color: var(--blue) !important;
-      color: white !important;
-      transform: scale(1.08);
-      box-shadow: 0 0 16px var(--blue-glow);
-    }
-    .cal-day .cal-dot {
-      width: 4px; height: 4px;
-      background: var(--blue);
-      border-radius: 50%;
-      opacity: .7;
-    }
+    /* Slots */
+    .date-label { font-size:.8rem; color:var(--text2); margin-bottom:16px; padding:10px 14px; background:var(--card2); border-radius:10px; border:1px solid var(--border); }
+    .slots-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .slot { padding:14px 6px; border:1px solid var(--border2); border-radius:12px; background:var(--card2); cursor:pointer; text-align:center; transition:all .15s; }
+    .slot .s-time { font-size:.95rem; font-weight:700; color:var(--text); }
+    .slot .s-dur { font-size:.68rem; color:var(--muted); margin:3px 0; }
+    .slot .s-spots { font-size:.72rem; font-weight:600; color:var(--green); }
+    .slot:hover:not(.full):not(.locked) { border-color:var(--blue); background:var(--blue-dim); transform:translateY(-2px); }
+    .slot.selected { border-color:var(--blue)!important; background:var(--blue-dim)!important; box-shadow:0 0 14px var(--blue-glow); }
+    .slot.selected .s-time { color:var(--blue2); }
+    .slot.almost .s-spots { color:var(--amber); }
+    .slot.full,.slot.locked { opacity:.35; cursor:not-allowed; pointer-events:none; }
+    .no-slots { text-align:center; padding:30px; color:var(--muted); font-size:.875rem; }
 
-    /* ── Slots ── */
-    .date-label {
-      font-size: .8rem;
-      color: var(--text2);
-      margin-bottom: 16px;
-      padding: 10px 14px;
-      background: var(--card2);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    .slots-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-    .slot {
-      padding: 14px 6px;
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      background: var(--card2);
-      cursor: pointer;
-      text-align: center;
-      transition: all .15s;
-    }
-    .slot .s-time { font-size: .95rem; font-weight: 700; color: var(--text); }
-    .slot .s-dur { font-size: .68rem; color: var(--muted); margin: 3px 0; }
-    .slot .s-spots { font-size: .72rem; font-weight: 600; color: var(--green); }
-    .slot:hover:not(.full):not(.locked) {
-      border-color: var(--blue);
-      background: var(--blue-dim);
-      transform: translateY(-2px);
-    }
-    .slot.selected {
-      border-color: var(--blue) !important;
-      background: var(--blue-dim) !important;
-      box-shadow: 0 0 14px var(--blue-glow);
-    }
-    .slot.selected .s-time { color: var(--blue2); }
-    .slot.almost .s-spots { color: var(--amber); }
-    .slot.full, .slot.locked {
-      opacity: .35;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-    .slot.locked .s-spots { color: var(--muted); }
-    .no-slots { text-align: center; padding: 30px; color: var(--muted); font-size: .875rem; }
-
-    /* ── Form ── */
-    .summary-box {
-      background: var(--card2);
-      border: 1px solid var(--border2);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 22px;
-    }
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 7px 0;
-      font-size: .85rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .summary-row:last-child { border: none; }
-    .summary-row .lbl { color: var(--text2); }
-    .summary-row .val { font-weight: 600; color: var(--text); }
-
-    .field { margin-bottom: 14px; }
+    /* Form */
+    .summary-box { background:var(--card2); border:1px solid var(--border2); border-radius:14px; padding:16px; margin-bottom:22px; }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:.85rem; border-bottom:1px solid var(--border); }
+    .summary-row:last-child { border:none; }
+    .summary-row .lbl { color:var(--text2); }
+    .summary-row .val { font-weight:600; }
+    .field { margin-bottom:14px; }
     .field label { display:block; font-size:.78rem; font-weight:600; color:var(--text2); margin-bottom:6px; letter-spacing:.03em; text-transform:uppercase; }
-    .field input {
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--card2);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      font-size: .95rem;
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    .field input::placeholder { color: var(--muted); }
-    .field input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px var(--blue-dim);
-    }
+    .field input { width:100%; padding:12px 16px; background:var(--card2); border:1px solid var(--border2); border-radius:12px; font-size:.95rem; color:var(--text); font-family:inherit; outline:none; transition:border-color .15s,box-shadow .15s; }
+    .field input::placeholder { color:var(--muted); }
+    .field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-dim); }
+    .field input:read-only { opacity:.6; cursor:default; }
 
-    /* ── Buttons ── */
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: .95rem;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      transition: all .15s;
-      letter-spacing: .02em;
-    }
-    .btn-primary {
-      background: var(--blue);
-      color: white;
-      box-shadow: 0 4px 20px rgba(79,142,247,.35);
-    }
-    .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,142,247,.45); }
-    .btn-primary:disabled { background: var(--card2); color: var(--muted); box-shadow: none; transform: none; cursor: not-allowed; }
-    .btn-ghost {
-      background: var(--card2);
-      color: var(--text2);
-      border: 1px solid var(--border2);
-      margin-top: 10px;
-    }
-    .btn-ghost:hover { border-color: var(--border2); color: var(--text); background: var(--card); }
+    /* Buttons */
+    .btn { width:100%; padding:14px; border-radius:12px; font-size:.95rem; font-weight:700; cursor:pointer; border:none; font-family:inherit; transition:all .15s; letter-spacing:.02em; }
+    .btn-primary { background:var(--blue); color:white; box-shadow:0 4px 20px rgba(79,142,247,.35); }
+    .btn-primary:hover { background:var(--blue2); transform:translateY(-1px); box-shadow:0 6px 24px rgba(79,142,247,.45); }
+    .btn-primary:disabled { background:var(--card2); color:var(--muted); box-shadow:none; transform:none; cursor:not-allowed; }
+    .btn-ghost { background:var(--card2); color:var(--text2); border:1px solid var(--border2); margin-top:10px; }
+    .btn-ghost:hover { color:var(--text); }
+    .btn-danger { background:var(--red-dim); color:var(--red); border:1px solid rgba(248,113,113,.3); }
+    .btn-danger:hover { background:rgba(248,113,113,.18); }
+    .err { background:var(--red-dim); border:1px solid rgba(248,113,113,.3); color:var(--red); border-radius:10px; padding:10px 14px; font-size:.82rem; margin-top:12px; display:none; }
 
-    .err {
-      background: rgba(248,113,113,.1);
-      border: 1px solid rgba(248,113,113,.3);
-      color: var(--red);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: .82rem;
-      margin-top: 12px;
-      display: none;
-    }
+    /* Success */
+    .success-wrap { text-align:center; padding:8px 0; }
+    .check-ring { width:72px; height:72px; border-radius:50%; background:var(--green-dim); border:2px solid rgba(52,211,153,.4); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 20px; box-shadow:0 0 24px rgba(52,211,153,.2); }
+    .success-wrap h2 { font-size:1.15rem; font-weight:800; margin-bottom:6px; }
+    .success-wrap p { color:var(--text2); font-size:.875rem; margin-bottom:24px; }
 
-    /* ── Success ── */
-    .success-wrap { text-align: center; padding: 8px 0; }
-    .check-ring {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: var(--green-dim);
-      border: 2px solid rgba(52,211,153,.4);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 24px rgba(52,211,153,.2);
-    }
-    .success-wrap h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
-    .success-wrap p { color: var(--text2); font-size: .875rem; margin-bottom: 24px; }
+    /* My Bookings panel */
+    .my-bookings-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; margin-top:20px; animation:fadeUp .3s ease; }
+    .my-bookings-card .card-title { margin-bottom:16px; }
+    .booking-item { background:var(--card2); border:1px solid var(--border2); border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .booking-item:last-child { margin-bottom:0; }
+    .booking-info .b-date { font-size:.9rem; font-weight:700; color:var(--text); }
+    .booking-info .b-time { font-size:.8rem; color:var(--text2); margin-top:3px; }
+    .b-cancel { padding:6px 14px; border-radius:8px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:inherit; background:var(--red-dim); color:var(--red); border:1px solid rgba(248,113,113,.3); transition:all .15s; white-space:nowrap; }
+    .b-cancel:hover { background:rgba(248,113,113,.18); }
+    .b-past { font-size:.75rem; color:var(--muted); font-weight:500; }
+    .no-bookings { text-align:center; padding:24px; color:var(--muted); font-size:.875rem; }
 
-    /* ── Loader ── */
+    /* Loader */
     .loader { text-align:center; padding:28px; color:var(--muted); font-size:.82rem; }
-    .spin {
-      width:28px; height:28px;
-      border:2px solid var(--border2);
-      border-top-color:var(--blue);
-      border-radius:50%;
-      animation:spin .7s linear infinite;
-      margin:0 auto 10px;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin { width:28px; height:28px; border:2px solid var(--border2); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 10px; }
+    @keyframes spin { to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-bar">Bar is </span><span class="logo-accent">Loading</span>
+  <div class="logo">Bar is <span>Loading</span></div>
+  <div class="header-right">
+    <button class="auth-btn" id="authBtn" onclick="toggleMenu()">
+      <span id="authBtnText">Σύνδεση με Google</span>
+    </button>
+    <div class="user-menu" id="userMenu">
+      <div class="user-menu-item" onclick="showMyBookings()">📋 Οι κρατήσεις μου</div>
+      <div class="user-menu-item danger" onclick="doSignOut()">Αποσύνδεση</div>
+    </div>
   </div>
-  <p>Κλείστε το personal training session σας</p>
 </header>
 
 <div class="wrap">
 
-  <div class="progress" id="progress">
-    <div class="p-step active" id="ps1"><div class="p-dot">1</div><div class="p-label">Ημέρα</div></div>
-    <div class="p-line"></div>
-    <div class="p-step" id="ps2"><div class="p-dot">2</div><div class="p-label">Ώρα</div></div>
-    <div class="p-line"></div>
-    <div class="p-step" id="ps3"><div class="p-dot">3</div><div class="p-label">Στοιχεία</div></div>
-    <div class="p-line"></div>
-    <div class="p-step" id="ps4"><div class="p-dot">4</div><div class="p-label">Επιβεβαίωση</div></div>
+  <!-- Auth gate (shown when not logged in) -->
+  <div class="auth-gate" id="authGate">
+    <div class="icon">🔐</div>
+    <h2>Σύνδεση απαιτείται</h2>
+    <p>Συνδέσου με το Google account σου για να κλείσεις session ή να δεις τις κρατήσεις σου.</p>
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+      Σύνδεση με Google
+    </button>
   </div>
 
-  <!-- Step 1: Calendar -->
-  <div class="card active" id="step1">
-    <div class="card-title">Επίλεξε ημερομηνία</div>
-    <div class="cal-nav">
-      <button id="prevM">&#8249;</button>
-      <span class="month-label" id="monthLabel"></span>
-      <button id="nextM">&#8250;</button>
+  <!-- Main app (shown when logged in) -->
+  <div id="mainApp" style="display:none">
+
+    <div class="progress" id="progress">
+      <div class="p-step active" id="ps1"><div class="p-dot">1</div><div class="p-label">Ημέρα</div></div>
+      <div class="p-line"></div>
+      <div class="p-step" id="ps2"><div class="p-dot">2</div><div class="p-label">Ώρα</div></div>
+      <div class="p-line"></div>
+      <div class="p-step" id="ps3"><div class="p-dot">3</div><div class="p-label">Στοιχεία</div></div>
+      <div class="p-line"></div>
+      <div class="p-step" id="ps4"><div class="p-dot">4</div><div class="p-label">Επιβεβαίωση</div></div>
     </div>
-    <div class="cal-grid" id="calGrid"></div>
-  </div>
 
-  <!-- Step 2: Slots -->
-  <div class="card" id="step2">
-    <div class="card-title">Επίλεξε ώρα</div>
-    <div class="date-label" id="dateLbl"></div>
-    <div id="slotsWrap"><div class="loader"><div class="spin"></div>Φόρτωση…</div></div>
-    <button class="btn btn-ghost" onclick="goStep(1)">← Πίσω</button>
-  </div>
-
-  <!-- Step 3: Details -->
-  <div class="card" id="step3">
-    <div class="card-title">Τα στοιχεία σου</div>
-    <div class="summary-box" id="summaryBox"></div>
-    <form onsubmit="doBook(event)">
-      <div class="field"><label>Ονοματεπώνυμο *</label><input type="text" id="fname" placeholder="π.χ. Μαρία Παπαδοπούλου" required/></div>
-      <div class="field"><label>Email *</label><input type="email" id="femail" placeholder="email@example.com" required/></div>
-      <div class="field"><label>Τηλέφωνο (προαιρετικό)</label><input type="tel" id="fphone" placeholder="6912345678"/></div>
-      <div class="err" id="ferr"></div>
-      <button type="submit" class="btn btn-primary" id="submitBtn">Επιβεβαίωση Κράτησης →</button>
-    </form>
-    <button class="btn btn-ghost" onclick="goStep(2)">← Πίσω</button>
-  </div>
-
-  <!-- Step 4: Success -->
-  <div class="card" id="step4">
-    <div class="success-wrap">
-      <div class="check-ring">✓</div>
-      <h2>Η κράτησή σου καταχωρήθηκε!</h2>
-      <p>Θα επικοινωνήσουμε μαζί σου σύντομα για επιβεβαίωση.</p>
-      <div class="summary-box" id="confirmBox"></div>
-      <button class="btn btn-primary" onclick="location.reload()">Νέα Κράτηση</button>
+    <!-- Step 1 -->
+    <div class="card active" id="step1">
+      <div class="card-title">Επίλεξε ημερομηνία</div>
+      <div class="cal-nav">
+        <button id="prevM">&#8249;</button>
+        <span class="month-label" id="monthLabel"></span>
+        <button id="nextM">&#8250;</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
     </div>
-  </div>
 
+    <!-- Step 2 -->
+    <div class="card" id="step2">
+      <div class="card-title">Επίλεξε ώρα</div>
+      <div class="date-label" id="dateLbl"></div>
+      <div id="slotsWrap"><div class="loader"><div class="spin"></div></div></div>
+      <button class="btn btn-ghost" onclick="goStep(1)">← Πίσω</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card" id="step3">
+      <div class="card-title">Επιβεβαίωσε την κράτηση</div>
+      <div class="summary-box" id="summaryBox"></div>
+      <form onsubmit="doBook(event)">
+        <div class="field"><label>Ονοματεπώνυμο *</label><input type="text" id="fname" required/></div>
+        <div class="field"><label>Email</label><input type="email" id="femail" readonly/></div>
+        <div class="field"><label>Τηλέφωνο (προαιρετικό)</label><input type="tel" id="fphone" placeholder="6912345678"/></div>
+        <div class="err" id="ferr"></div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Επιβεβαίωση →</button>
+      </form>
+      <button class="btn btn-ghost" onclick="goStep(2)">← Πίσω</button>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="card" id="step4">
+      <div class="success-wrap">
+        <div class="check-ring">✓</div>
+        <h2>Κράτηση επιβεβαιώθηκε!</h2>
+        <p>Θα επικοινωνήσουμε μαζί σου σύντομα.</p>
+        <div class="summary-box" id="confirmBox"></div>
+        <button class="btn btn-primary" onclick="newBooking()">Νέα Κράτηση</button>
+      </div>
+    </div>
+
+    <!-- My bookings -->
+    <div class="my-bookings-card" id="myBookingsCard" style="display:none">
+      <div class="card-title">Οι κρατήσεις μου</div>
+      <div id="myBookingsList"><div class="loader"><div class="spin"></div></div></div>
+    </div>
+
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, serverTimestamp }
+import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, getDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey:            "AIzaSyATXEnqexj5iUAoMWgA64mKhzeig_Tje_Q",
-  authDomain:        "bar-is-loading-booking.firebaseapp.com",
-  projectId:         "bar-is-loading-booking",
-  storageBucket:     "bar-is-loading-booking.firebasestorage.app",
-  messagingSenderId: "923651403991",
-  appId:             "1:923651403991:web:8a36f66e2ab9ed85300092",
-  measurementId:     "G-JHVSGRNH4V"
+  apiKey:"AIzaSyATXEnqexj5iUAoMWgA64mKhzeig_Tje_Q",
+  authDomain:"bar-is-loading-booking.firebaseapp.com",
+  projectId:"bar-is-loading-booking",
+  storageBucket:"bar-is-loading-booking.firebasestorage.app",
+  messagingSenderId:"923651403991",
+  appId:"1:923651403991:web:8a36f66e2ab9ed85300092"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-const pad = n => String(n).padStart(2,'0');
-const MONTHS = ["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος","Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
-const MONTHS_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
-const DAYS_SH = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
+const pad=n=>String(n).padStart(2,'0');
+const MONTHS=["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος","Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
+const MONTHS_GEN=["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
+const DAYS_SH=["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
+function fmtDate(s){const[y,m,d]=s.split('-').map(Number);return`${DAYS_SH[new Date(y,m-1,d).getDay()]} ${d} ${MONTHS_GEN[m-1]} ${y}`;}
 
-function fmtDate(s){ const [y,m,d]=s.split('-').map(Number); return `${DAYS_SH[new Date(y,m-1,d).getDay()]} ${d} ${MONTHS_GEN[m-1]} ${y}`; }
-
-// ── Greek holidays ──
-function getEaster(year){
-  const a=year%4,b=year%7,c=year%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7,f=d+e+114;
-  return new Date(year,Math.floor(f/31)-1,(f%31)+1+13);
-}
-function getHolidays(year){
-  const fixed=[`${year}-01-01`,`${year}-01-06`,`${year}-03-25`,`${year}-05-01`,`${year}-08-15`,`${year}-10-28`,`${year}-12-25`,`${year}-12-26`];
-  const e=getEaster(year),add=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
+// Holidays
+function getEaster(y){const a=y%4,b=y%7,c=y%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7,f=d+e+114;return new Date(y,Math.floor(f/31)-1,(f%31)+1+13);}
+function getHolidays(y){
+  const fixed=[`${y}-01-01`,`${y}-01-06`,`${y}-03-25`,`${y}-05-01`,`${y}-08-15`,`${y}-10-28`,`${y}-12-25`,`${y}-12-26`];
+  const e=getEaster(y),add=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
   const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   return new Set([...fixed,fmt(add(e,-48)),fmt(add(e,-2)),fmt(add(e,1)),fmt(add(e,50))]);
 }
@@ -483,12 +322,37 @@ const hCache={};
 function isHoliday(ds){const y=parseInt(ds.slice(0,4));if(!hCache[y])hCache[y]=getHolidays(y);return hCache[y].has(ds);}
 function isBlocked(ds,dow){return dow===0||isHoliday(ds);}
 
-let cy,cm,schedule=null,selDate=null,selTime=null,selDur=60;
+let cy,cm,schedule=null,selDate=null,selTime=null,selDur=60,currentUser=null;
 
+// ── Auth ──
+onAuthStateChanged(auth, user=>{
+  currentUser=user;
+  if(user){
+    document.getElementById('authGate').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    document.getElementById('authBtnText').textContent=user.displayName?.split(' ')[0]||'Εσύ';
+    document.getElementById('femail').value=user.email;
+    document.getElementById('fname').value=user.displayName||'';
+    if(!schedule) loadSchedule(); else renderCal(cy||new Date().getFullYear(), cm||new Date().getMonth()+1);
+    loadMyBookings();
+  } else {
+    document.getElementById('authGate').style.display='block';
+    document.getElementById('mainApp').style.display='none';
+    document.getElementById('authBtnText').textContent='Σύνδεση με Google';
+  }
+});
+
+window.signInGoogle=async()=>{ try{ await signInWithPopup(auth,provider); }catch(e){console.error(e);} };
+window.doSignOut=()=>{ signOut(auth); closeMenu(); };
+window.toggleMenu=()=>{ if(!currentUser){signInGoogle();return;} document.getElementById('userMenu').classList.toggle('open'); };
+window.closeMenu=()=>document.getElementById('userMenu').classList.remove('open');
+document.addEventListener('click',e=>{ if(!e.target.closest('.header-right')) closeMenu(); });
+
+// ── Schedule ──
 async function loadSchedule(){
-  try{ const s=await getDoc(doc(db,'schedule','config')); if(s.exists())schedule=s.data(); }catch(e){}
-  if(!schedule) schedule={duration:60,days:{}};
-  const now=new Date(); cy=now.getFullYear(); cm=now.getMonth()+1;
+  try{const s=await getDoc(doc(db,'schedule','config'));if(s.exists())schedule=s.data();}catch(e){}
+  if(!schedule)schedule={duration:60,days:{}};
+  const now=new Date();cy=now.getFullYear();cm=now.getMonth()+1;
   renderCal(cy,cm);
 }
 
@@ -503,43 +367,32 @@ function renderCal(year,month){
   const days=new Date(year,month,0).getDate();
   for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-day';grid.appendChild(el);}
   for(let d=1;d<=days;d++){
-    const ds=`${year}-${pad(month)}-${pad(d)}`;
-    const dt=new Date(year,month-1,d);
-    const dow=dt.getDay();
-    const el=document.createElement('div');
-    el.className='cal-day';
-    el.innerHTML=`<span>${d}</span>`;
-    if(dt<today){ el.classList.add('past'); }
+    const ds=`${year}-${pad(month)}-${pad(d)}`,dt=new Date(year,month-1,d),dow=dt.getDay();
+    const el=document.createElement('div');el.className='cal-day';el.innerHTML=`<span>${d}</span>`;
+    if(dt<today){el.classList.add('past');}
     else{
-      const blocked=isBlocked(ds,dow);
-      const dayConf=schedule.days?.[String(dow)];
-      if(!blocked&&dayConf&&dayConf.active){
+      if(!isBlocked(ds,dow)&&schedule.days?.[String(dow)]?.active){
         el.classList.add('available');
         el.innerHTML=`<span>${d}</span><div class="cal-dot"></div>`;
         el.onclick=()=>pickDate(ds);
-        if(ds===selDate) el.classList.add('selected');
-      } else { el.classList.add('off'); }
-      if(dt.getTime()===today.getTime()) el.classList.add('today');
+        if(ds===selDate)el.classList.add('selected');
+      } else el.classList.add('off');
+      if(dt.getTime()===today.getTime())el.classList.add('today');
     }
     grid.appendChild(el);
   }
 }
-
 document.getElementById('prevM').onclick=()=>{let m=cm-1,y=cy;if(m<1){m=12;y--;}renderCal(y,m);};
 document.getElementById('nextM').onclick=()=>{let m=cm+1,y=cy;if(m>12){m=1;y++;}renderCal(y,m);};
 
 async function pickDate(ds){
-  selDate=ds;selTime=null;
-  renderCal(cy,cm);
-  goStep(2);
+  selDate=ds;selTime=null;renderCal(cy,cm);goStep(2);
   document.getElementById('dateLbl').textContent=fmtDate(ds);
-  document.getElementById('slotsWrap').innerHTML='<div class="loader"><div class="spin"></div>Φόρτωση ωρών…</div>';
-  const [y,m,d]=ds.split('-').map(Number);
-  const dow=new Date(y,m-1,d).getDay();
+  document.getElementById('slotsWrap').innerHTML='<div class="loader"><div class="spin"></div>Φόρτωση…</div>';
+  const[y,m,d]=ds.split('-').map(Number),dow=new Date(y,m-1,d).getDay();
   const dayConf=schedule.days?.[String(dow)];
-  if(!dayConf||!dayConf.active){renderNoSlots();return;}
-  const MAX=schedule.maxPerSlot||3;
-  const dur=schedule.duration||60;
+  if(!dayConf?.active){renderNoSlots();return;}
+  const MAX=schedule.maxPerSlot||3,dur=schedule.duration||60;
   let bCount={},lockedSet=new Set();
   try{
     const[bSnap,lSnap]=await Promise.all([
@@ -549,24 +402,22 @@ async function pickDate(ds){
     bSnap.forEach(d=>{const t=d.data().time;bCount[t]=(bCount[t]||0)+1;});
     lSnap.forEach(d=>lockedSet.add(d.data().time));
   }catch(e){console.error(e);}
-  let slots=[],cur=parseInt(dayConf.start)*60+parseInt(dayConf.start.split(':')[1]);
-  let[sh,sm]=dayConf.start.split(':').map(Number),[eh,em]=dayConf.end.split(':').map(Number);
-  cur=sh*60+sm;let end=eh*60+em;
+  let slots=[],sh=parseInt(dayConf.start),sm2=parseInt(dayConf.start.split(':')[1]);
+  let[sh2,sm3]=dayConf.start.split(':').map(Number),[eh,em]=dayConf.end.split(':').map(Number);
+  let cur=sh2*60+sm3,end=eh*60+em;
   while(cur+dur<=end){slots.push(`${pad(Math.floor(cur/60))}:${pad(cur%60)}`);cur+=dur;}
   if(!slots.length){renderNoSlots();return;}
-  const wrap=document.getElementById('slotsWrap');
-  wrap.innerHTML='<div class="slots-grid">'+slots.map(t=>{
-    const count=bCount[t]||0,locked=lockedSet.has(t),full=count>=MAX,remaining=MAX-count;
+  document.getElementById('slotsWrap').innerHTML='<div class="slots-grid">'+slots.map(t=>{
+    const count=bCount[t]||0,locked=lockedSet.has(t),full=count>=MAX,rem=MAX-count;
     let cls='slot',spots='';
     if(locked){cls+=' locked';spots=`<div class="s-spots">🔒 Κλειδωμένο</div>`;}
     else if(full){cls+=' full';spots=`<div class="s-spots">Πλήρες</div>`;}
-    else{if(remaining===1)cls+=' almost';spots=`<div class="s-spots">${remaining}/${MAX} θέσεις</div>`;}
+    else{if(rem===1)cls+=' almost';spots=`<div class="s-spots">${rem}/${MAX} θέσεις</div>`;}
     const click=(!locked&&!full)?`onclick="pickTime('${t}',${dur})"`:'' ;
-    return `<div class="${cls}" ${click}><div class="s-time">${t}</div><div class="s-dur">${dur} λεπτά</div>${spots}</div>`;
+    return`<div class="${cls}" ${click}><div class="s-time">${t}</div><div class="s-dur">${dur} λεπτά</div>${spots}</div>`;
   }).join('')+'</div>';
 }
-
-function renderNoSlots(){ document.getElementById('slotsWrap').innerHTML='<div class="no-slots">Δεν υπάρχουν διαθέσιμες ώρες.</div>'; }
+function renderNoSlots(){document.getElementById('slotsWrap').innerHTML='<div class="no-slots">Δεν υπάρχουν διαθέσιμες ώρες.</div>';}
 
 window.pickTime=function(t,dur){
   selTime=t;selDur=dur;
@@ -596,33 +447,95 @@ window.doBook=async function(e){
     ]);
     if(!lockedSnap.empty||existing.size>=MAX){
       err.textContent='Λυπούμαστε, αυτή η ώρα δεν είναι πλέον διαθέσιμη.';
-      err.style.display='block';btn.disabled=false;btn.textContent='Επιβεβαίωση Κράτησης →';return;
+      err.style.display='block';btn.disabled=false;btn.textContent='Επιβεβαίωση →';return;
     }
-    await addDoc(collection(db,'bookings'),{date:selDate,time:selTime,duration:selDur,name,email,phone,createdAt:serverTimestamp()});
+    await addDoc(collection(db,'bookings'),{
+      date:selDate,time:selTime,duration:selDur,
+      name,email,phone,
+      userId:currentUser.uid,
+      createdAt:serverTimestamp()
+    });
     document.getElementById('confirmBox').innerHTML=`
       <div class="summary-row"><span class="lbl">Όνομα</span><span class="val">${name}</span></div>
-      <div class="summary-row"><span class="lbl">Email</span><span class="val">${email}</span></div>
       <div class="summary-row"><span class="lbl">Ημερομηνία</span><span class="val">${fmtDate(selDate)}</span></div>
       <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>`;
     goStep(4);
+    loadMyBookings();
   }catch(ex){
     err.textContent='Σφάλμα. Παρακαλώ δοκίμασε ξανά.';err.style.display='block';
-    btn.disabled=false;btn.textContent='Επιβεβαίωση Κράτησης →';console.error(ex);
+    btn.disabled=false;btn.textContent='Επιβεβαίωση →';console.error(ex);
   }
 };
+
+// ── My Bookings ──
+async function loadMyBookings(){
+  if(!currentUser)return;
+  const card=document.getElementById('myBookingsCard');
+  const list=document.getElementById('myBookingsList');
+  card.style.display='block';
+  list.innerHTML='<div class="loader"><div class="spin"></div></div>';
+  try{
+    const snap=await getDocs(query(collection(db,'bookings'),where('userId','==',currentUser.uid)));
+    let items=[];
+    snap.forEach(d=>items.push({id:d.id,...d.data()}));
+    items.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    const today=new Date().toISOString().slice(0,10);
+    const upcoming=items.filter(b=>b.date>=today);
+    const past=items.filter(b=>b.date<today);
+    if(!items.length){list.innerHTML='<div class="no-bookings">Δεν έχεις κρατήσεις ακόμα.</div>';return;}
+    let html='';
+    if(upcoming.length){
+      html+=`<div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Επερχόμενες</div>`;
+      html+=upcoming.map(b=>`
+        <div class="booking-item">
+          <div class="booking-info">
+            <div class="b-date">${fmtDate(b.date)}</div>
+            <div class="b-time">⏰ ${b.time} · ${b.duration||60} λεπτά</div>
+          </div>
+          <button class="b-cancel" onclick="cancelBooking('${b.id}','${b.date}')">Ακύρωση</button>
+        </div>`).join('');
+    }
+    if(past.length){
+      html+=`<div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px">Ιστορικό</div>`;
+      html+=past.slice(-5).reverse().map(b=>`
+        <div class="booking-item" style="opacity:.5">
+          <div class="booking-info">
+            <div class="b-date">${fmtDate(b.date)}</div>
+            <div class="b-time">⏰ ${b.time} · ${b.duration||60} λεπτά</div>
+          </div>
+          <span class="b-past">Ολοκληρώθηκε</span>
+        </div>`).join('');
+    }
+    list.innerHTML=html;
+  }catch(e){list.innerHTML='<div class="no-bookings">Σφάλμα φόρτωσης.</div>';console.error(e);}
+}
+
+window.cancelBooking=async function(id,date){
+  const today=new Date().toISOString().slice(0,10);
+  if(date<today){alert('Δεν μπορείς να ακυρώσεις παρελθοντική κράτηση.');return;}
+  if(!confirm('Να ακυρωθεί αυτή η κράτηση;'))return;
+  try{
+    await deleteDoc(doc(db,'bookings',id));
+    loadMyBookings();
+    renderCal(cy,cm);
+  }catch(e){alert('Σφάλμα ακύρωσης.');console.error(e);}
+};
+
+window.showMyBookings=()=>{
+  closeMenu();
+  document.getElementById('myBookingsCard').scrollIntoView({behavior:'smooth'});
+};
+window.newBooking=()=>{selDate=null;selTime=null;goStep(1);renderCal(cy,cm);};
 
 window.goStep=function(n){
   document.querySelectorAll('.card').forEach((c,i)=>c.classList.toggle('active',i===n-1));
   [1,2,3,4].forEach(i=>{
     const el=document.getElementById('ps'+i);
     el.classList.remove('active','done');
-    if(i<n)el.classList.add('done');
-    else if(i===n)el.classList.add('active');
+    if(i<n)el.classList.add('done');else if(i===n)el.classList.add('active');
   });
   window.scrollTo({top:0,behavior:'smooth'});
 };
-
-loadSchedule();
 </script>
 </body>
 </html>
