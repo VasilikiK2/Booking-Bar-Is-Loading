@@ -4,320 +4,411 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Κρατήσεις — Bar is Loading</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --muted: #94a3b8;
-      --accent: #10b981;
-      --accent-light: #d1fae5;
-      --accent-dark: #059669;
-      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+      --bg: #08080f;
+      --surface: #0f0f1a;
+      --card: #13131f;
+      --card2: #1a1a2e;
+      --border: #1e1e35;
+      --border2: #2a2a45;
+      --text: #f0f0ff;
+      --text2: #a0a0c0;
+      --muted: #505070;
+      --blue: #4f8ef7;
+      --blue2: #6fa3ff;
+      --blue-dim: rgba(79,142,247,0.12);
+      --blue-glow: rgba(79,142,247,0.25);
+      --green: #34d399;
+      --green-dim: rgba(52,211,153,0.12);
+      --amber: #fbbf24;
+      --red: #f87171;
     }
 
     body {
-      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
     }
 
-    /* Header */
+    /* ── Header ── */
     header {
-      background: var(--card);
+      background: linear-gradient(135deg, #0d0d20 0%, #111128 100%);
       border-bottom: 1px solid var(--border);
-      padding: 20px 24px;
+      padding: 28px 24px 24px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    header .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
-    header .logo span { color: var(--accent); }
-    header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, rgba(79,142,247,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      position: relative;
+    }
+    .logo-bar { color: var(--text); }
+    .logo-accent { color: var(--blue2); }
+    .logo-dot { color: var(--blue); opacity: .5; }
+    header p {
+      color: var(--text2);
+      font-size: 0.85rem;
+      margin-top: 6px;
+      font-weight: 400;
+      position: relative;
+    }
 
-    .wrap { max-width: 560px; margin: 0 auto; padding: 32px 16px 64px; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 32px 16px 80px; }
 
-    /* Progress */
+    /* ── Progress ── */
     .progress {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0;
       margin-bottom: 28px;
     }
     .p-step {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      flex: 0 0 auto;
     }
     .p-dot {
-      width: 30px; height: 30px;
+      width: 32px; height: 32px;
       border-radius: 50%;
-      background: var(--border);
+      background: var(--card2);
+      border: 1.5px solid var(--border2);
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
+      transition: all .25s;
     }
-    .p-step.active .p-dot { background: var(--accent); color: white; }
-    .p-step.done .p-dot { background: var(--accent); color: white; }
-    .p-step.done .p-dot::after { content: "✓"; }
-    .p-step.done .p-num { display: none; }
-    .p-label { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
-    .p-step.active .p-label { color: var(--accent); font-weight: 600; }
-    .p-line { flex: 1; height: 1px; background: var(--border); max-width: 48px; margin-bottom: 20px; }
+    .p-step.active .p-dot {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+      box-shadow: 0 0 16px var(--blue-glow);
+    }
+    .p-step.done .p-dot {
+      background: var(--blue-dim);
+      border-color: var(--blue);
+      color: var(--blue2);
+    }
+    .p-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .p-step.active .p-label { color: var(--blue2); }
+    .p-step.done .p-label { color: var(--blue); }
+    .p-line { flex: 1; height: 1px; background: var(--border2); margin: 0 6px 20px; }
 
-    /* Card */
+    /* ── Card ── */
     .card {
       background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 20px;
       padding: 28px;
-      box-shadow: var(--shadow);
       display: none;
+      animation: fadeUp .3s ease;
     }
     .card.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
     .card-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
-      margin-bottom: 20px;
       color: var(--text);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 18px;
+      background: var(--blue);
+      border-radius: 2px;
     }
 
-    /* Calendar */
+    /* ── Calendar ── */
     .cal-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .cal-nav button {
-      width: 34px; height: 34px;
-      border: 1px solid var(--border);
+      width: 36px; height: 36px;
+      border: 1px solid var(--border2);
       border-radius: 10px;
-      background: var(--card);
+      background: var(--card2);
+      color: var(--text2);
+      font-size: 1.1rem;
       cursor: pointer;
-      font-size: 1rem;
-      color: var(--text);
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
+      transition: all .15s;
     }
-    .cal-nav button:hover { background: var(--bg); border-color: var(--accent); }
-    .cal-nav .month { font-weight: 700; font-size: 1rem; }
+    .cal-nav button:hover { border-color: var(--blue); color: var(--blue); }
+    .cal-nav .month-label { font-weight: 700; font-size: 1rem; color: var(--text); }
 
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
     .cal-head {
       text-align: center;
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: .68rem;
+      font-weight: 700;
       color: var(--muted);
-      padding: 0 0 10px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: .06em;
+      padding-bottom: 10px;
     }
     .cal-day {
       aspect-ratio: 1;
       border-radius: 10px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 0.875rem;
+      font-size: .85rem;
       font-weight: 500;
-      border: 1.5px solid transparent;
-      transition: all 0.15s;
+      border: 1px solid transparent;
       cursor: default;
+      transition: all .15s;
+      gap: 2px;
     }
-    .cal-day.past, .cal-day.off { color: #d1d5db; }
-    .cal-day.today { border-color: var(--accent); font-weight: 700; color: var(--accent); }
+    .cal-day.past { color: var(--muted); opacity: .4; }
+    .cal-day.off { color: var(--muted); opacity: .3; }
+    .cal-day.today {
+      border-color: var(--border2);
+      color: var(--text2);
+    }
     .cal-day.available {
-      background: var(--accent-light);
-      color: var(--accent-dark);
+      background: var(--blue-dim);
+      border-color: rgba(79,142,247,.3);
+      color: var(--blue2);
       font-weight: 700;
       cursor: pointer;
     }
-    .cal-day.available:hover { background: var(--accent); color: white; transform: scale(1.08); }
-    .cal-day.selected { background: var(--accent) !important; color: white !important; border-color: var(--accent) !important; transform: scale(1.08); }
+    .cal-day.available:hover {
+      background: rgba(79,142,247,.22);
+      border-color: var(--blue);
+      transform: scale(1.08);
+      box-shadow: 0 0 12px var(--blue-glow);
+    }
+    .cal-day.selected {
+      background: var(--blue) !important;
+      border-color: var(--blue) !important;
+      color: white !important;
+      transform: scale(1.08);
+      box-shadow: 0 0 16px var(--blue-glow);
+    }
+    .cal-day .cal-dot {
+      width: 4px; height: 4px;
+      background: var(--blue);
+      border-radius: 50%;
+      opacity: .7;
+    }
 
-    /* Time slots */
+    /* ── Slots ── */
     .date-label {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 14px;
-      font-weight: 500;
+      font-size: .8rem;
+      color: var(--text2);
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: var(--card2);
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
-    .slots-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
+    .slots-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
     .slot {
-      padding: 14px 8px;
-      border: 1.5px solid var(--border);
+      padding: 14px 6px;
+      border: 1px solid var(--border2);
       border-radius: 12px;
-      background: var(--card);
+      background: var(--card2);
       cursor: pointer;
       text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text);
-      transition: all 0.15s;
+      transition: all .15s;
     }
-    .slot:hover:not(.full):not(.locked) { border-color: var(--accent); color: var(--accent); }
-    .slot.selected { background: var(--accent); color: white; border-color: var(--accent); }
-    .slot .dur { font-size: 0.72rem; font-weight: 400; opacity: 0.7; margin-top: 3px; }
-    .slot .spots { font-size: 0.72rem; margin-top: 4px; font-weight: 500; }
-    .slot.almost .spots { color: #f59e0b; }
+    .slot .s-time { font-size: .95rem; font-weight: 700; color: var(--text); }
+    .slot .s-dur { font-size: .68rem; color: var(--muted); margin: 3px 0; }
+    .slot .s-spots { font-size: .72rem; font-weight: 600; color: var(--green); }
+    .slot:hover:not(.full):not(.locked) {
+      border-color: var(--blue);
+      background: var(--blue-dim);
+      transform: translateY(-2px);
+    }
+    .slot.selected {
+      border-color: var(--blue) !important;
+      background: var(--blue-dim) !important;
+      box-shadow: 0 0 14px var(--blue-glow);
+    }
+    .slot.selected .s-time { color: var(--blue2); }
+    .slot.almost .s-spots { color: var(--amber); }
     .slot.full, .slot.locked {
-      background: #f8fafc; color: #cbd5e1; border-color: #e2e8f0;
-      cursor: not-allowed; pointer-events: none;
+      opacity: .35;
+      cursor: not-allowed;
+      pointer-events: none;
     }
-    .slot.locked .spots { color: #94a3b8; }
-    .no-slots { text-align: center; padding: 28px 0; color: var(--muted); font-size: 0.9rem; }
+    .slot.locked .s-spots { color: var(--muted); }
+    .no-slots { text-align: center; padding: 30px; color: var(--muted); font-size: .875rem; }
 
-    /* Form */
+    /* ── Form ── */
     .summary-box {
-      background: var(--bg);
-      border-radius: 12px;
+      background: var(--card2);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
       padding: 16px;
       margin-bottom: 22px;
-      border: 1px solid var(--border);
     }
     .summary-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
-      font-size: 0.875rem;
+      padding: 7px 0;
+      font-size: .85rem;
       border-bottom: 1px solid var(--border);
     }
     .summary-row:last-child { border: none; }
-    .summary-row .lbl { color: var(--muted); }
-    .summary-row .val { font-weight: 600; }
+    .summary-row .lbl { color: var(--text2); }
+    .summary-row .val { font-weight: 600; color: var(--text); }
 
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .field { margin-bottom: 14px; }
+    .field label { display:block; font-size:.78rem; font-weight:600; color:var(--text2); margin-bottom:6px; letter-spacing:.03em; text-transform:uppercase; }
     .field input {
       width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.95rem;
+      padding: 12px 16px;
+      background: var(--card2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      font-size: .95rem;
       color: var(--text);
-      background: var(--card);
+      font-family: inherit;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-dim);
+    }
 
-    /* Buttons */
+    /* ── Buttons ── */
     .btn {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: .95rem;
+      font-weight: 700;
       cursor: pointer;
       border: none;
-      transition: all 0.15s;
+      font-family: inherit;
+      transition: all .15s;
+      letter-spacing: .02em;
     }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-dark); }
-    .btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 4px 20px rgba(79,142,247,.35);
+    }
+    .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,142,247,.45); }
+    .btn-primary:disabled { background: var(--card2); color: var(--muted); box-shadow: none; transform: none; cursor: not-allowed; }
     .btn-ghost {
-      background: none;
-      border: 1.5px solid var(--border);
-      color: var(--muted);
+      background: var(--card2);
+      color: var(--text2);
+      border: 1px solid var(--border2);
       margin-top: 10px;
     }
-    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--border2); color: var(--text); background: var(--card); }
 
     .err {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #dc2626;
-      border-radius: 8px;
+      background: rgba(248,113,113,.1);
+      border: 1px solid rgba(248,113,113,.3);
+      color: var(--red);
+      border-radius: 10px;
       padding: 10px 14px;
-      font-size: 0.85rem;
+      font-size: .82rem;
       margin-top: 12px;
       display: none;
     }
 
-    /* Success */
-    .success-wrap { text-align: center; }
-    .check-icon {
-      width: 64px; height: 64px;
-      background: var(--accent-light);
+    /* ── Success ── */
+    .success-wrap { text-align: center; padding: 8px 0; }
+    .check-ring {
+      width: 72px; height: 72px;
       border-radius: 50%;
+      background: var(--green-dim);
+      border: 2px solid rgba(52,211,153,.4);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.8rem;
-      margin: 0 auto 18px;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 24px rgba(52,211,153,.2);
     }
-    .success-wrap h2 { font-size: 1.2rem; margin-bottom: 6px; }
-    .success-wrap p { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; }
+    .success-wrap h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+    .success-wrap p { color: var(--text2); font-size: .875rem; margin-bottom: 24px; }
 
-    /* Loader */
-    .loader { text-align: center; padding: 24px; color: var(--muted); font-size: 0.875rem; }
+    /* ── Loader ── */
+    .loader { text-align:center; padding:28px; color:var(--muted); font-size:.82rem; }
     .spin {
-      width: 28px; height: 28px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      margin: 0 auto 10px;
+      width:28px; height:28px;
+      border:2px solid var(--border2);
+      border-top-color:var(--blue);
+      border-radius:50%;
+      animation:spin .7s linear infinite;
+      margin:0 auto 10px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Bar is <span>Loading</span></div>
+  <div class="logo">
+    <span class="logo-bar">Bar is </span><span class="logo-accent">Loading</span>
+  </div>
   <p>Κλείστε το personal training session σας</p>
 </header>
 
 <div class="wrap">
 
   <div class="progress" id="progress">
-    <div class="p-step active" id="ps1">
-      <div class="p-dot"><span class="p-num">1</span></div>
-      <div class="p-label">Ημερομηνία</div>
-    </div>
+    <div class="p-step active" id="ps1"><div class="p-dot">1</div><div class="p-label">Ημέρα</div></div>
     <div class="p-line"></div>
-    <div class="p-step" id="ps2">
-      <div class="p-dot"><span class="p-num">2</span></div>
-      <div class="p-label">Ώρα</div>
-    </div>
+    <div class="p-step" id="ps2"><div class="p-dot">2</div><div class="p-label">Ώρα</div></div>
     <div class="p-line"></div>
-    <div class="p-step" id="ps3">
-      <div class="p-dot"><span class="p-num">3</span></div>
-      <div class="p-label">Στοιχεία</div>
-    </div>
+    <div class="p-step" id="ps3"><div class="p-dot">3</div><div class="p-label">Στοιχεία</div></div>
     <div class="p-line"></div>
-    <div class="p-step" id="ps4">
-      <div class="p-dot"><span class="p-num">4</span></div>
-      <div class="p-label">Επιβεβαίωση</div>
-    </div>
+    <div class="p-step" id="ps4"><div class="p-dot">4</div><div class="p-label">Επιβεβαίωση</div></div>
   </div>
 
-  <!-- Step 1 -->
+  <!-- Step 1: Calendar -->
   <div class="card active" id="step1">
     <div class="card-title">Επίλεξε ημερομηνία</div>
     <div class="cal-nav">
       <button id="prevM">&#8249;</button>
-      <span class="month" id="monthLabel"></span>
+      <span class="month-label" id="monthLabel"></span>
       <button id="nextM">&#8250;</button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
-  <!-- Step 2 -->
+  <!-- Step 2: Slots -->
   <div class="card" id="step2">
     <div class="card-title">Επίλεξε ώρα</div>
     <div class="date-label" id="dateLbl"></div>
@@ -325,33 +416,24 @@
     <button class="btn btn-ghost" onclick="goStep(1)">← Πίσω</button>
   </div>
 
-  <!-- Step 3 -->
+  <!-- Step 3: Details -->
   <div class="card" id="step3">
     <div class="card-title">Τα στοιχεία σου</div>
     <div class="summary-box" id="summaryBox"></div>
     <form onsubmit="doBook(event)">
-      <div class="field">
-        <label>Ονοματεπώνυμο *</label>
-        <input type="text" id="fname" placeholder="π.χ. Μαρία Παπαδοπούλου" required/>
-      </div>
-      <div class="field">
-        <label>Email *</label>
-        <input type="email" id="femail" placeholder="email@example.com" required/>
-      </div>
-      <div class="field">
-        <label>Τηλέφωνο (προαιρετικό)</label>
-        <input type="tel" id="fphone" placeholder="6912345678"/>
-      </div>
+      <div class="field"><label>Ονοματεπώνυμο *</label><input type="text" id="fname" placeholder="π.χ. Μαρία Παπαδοπούλου" required/></div>
+      <div class="field"><label>Email *</label><input type="email" id="femail" placeholder="email@example.com" required/></div>
+      <div class="field"><label>Τηλέφωνο (προαιρετικό)</label><input type="tel" id="fphone" placeholder="6912345678"/></div>
       <div class="err" id="ferr"></div>
       <button type="submit" class="btn btn-primary" id="submitBtn">Επιβεβαίωση Κράτησης →</button>
     </form>
     <button class="btn btn-ghost" onclick="goStep(2)">← Πίσω</button>
   </div>
 
-  <!-- Step 4 -->
+  <!-- Step 4: Success -->
   <div class="card" id="step4">
     <div class="success-wrap">
-      <div class="check-icon">✓</div>
+      <div class="check-ring">✓</div>
       <h2>Η κράτησή σου καταχωρήθηκε!</h2>
       <p>Θα επικοινωνήσουμε μαζί σου σύντομα για επιβεβαίωση.</p>
       <div class="summary-box" id="confirmBox"></div>
@@ -379,247 +461,163 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-// ── Helpers ──
 const pad = n => String(n).padStart(2,'0');
 const MONTHS = ["Ιανουάριος","Φεβρουάριος","Μάρτιος","Απρίλιος","Μάιος","Ιούνιος","Ιούλιος","Αύγουστος","Σεπτέμβριος","Οκτώβριος","Νοέμβριος","Δεκέμβριος"];
 const MONTHS_GEN = ["Ιανουαρίου","Φεβρουαρίου","Μαρτίου","Απριλίου","Μαΐου","Ιουνίου","Ιουλίου","Αυγούστου","Σεπτεμβρίου","Οκτωβρίου","Νοεμβρίου","Δεκεμβρίου"];
 const DAYS_SH = ["Κυρ","Δευ","Τρί","Τετ","Πέμ","Παρ","Σάβ"];
 
-// ── Greek public holidays ──
-function getEaster(year) {
-  const a=year%4, b=year%7, c=year%19;
-  const d=(19*c+15)%30, e=(2*a+4*b-d+34)%7;
-  const f=d+e+114, month=Math.floor(f/31), day=(f%31)+1;
-  // Julian to Gregorian (+13 days for 21st century)
-  const julian = new Date(year, month-1, day+13);
-  return julian;
-}
-function getHolidays(year) {
-  const fixed = [
-    `${year}-01-01`, `${year}-01-06`, `${year}-03-25`,
-    `${year}-05-01`, `${year}-08-15`, `${year}-10-28`,
-    `${year}-12-25`, `${year}-12-26`
-  ];
-  const easter = getEaster(year);
-  const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
-  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const variable = [
-    fmt(addDays(easter,-48)), // Καθαρά Δευτέρα
-    fmt(addDays(easter,-2)),  // Μεγάλη Παρασκευή
-    fmt(addDays(easter,1)),   // Δευτέρα Πάσχα
-    fmt(addDays(easter,50)),  // Αγίου Πνεύματος
-  ];
-  return new Set([...fixed, ...variable]);
-}
-// Cache holidays for relevant years
-const holidayCache = {};
-function isHoliday(dateStr) {
-  const year = parseInt(dateStr.slice(0,4));
-  if(!holidayCache[year]) holidayCache[year] = getHolidays(year);
-  return holidayCache[year].has(dateStr);
-}
-function isBlocked(dateStr, dow) {
-  return dow === 0 || isHoliday(dateStr); // Block Sundays and holidays
-}
+function fmtDate(s){ const [y,m,d]=s.split('-').map(Number); return `${DAYS_SH[new Date(y,m-1,d).getDay()]} ${d} ${MONTHS_GEN[m-1]} ${y}`; }
 
-function dateStr(y,m,d){ return `${y}-${pad(m)}-${pad(d)}`; }
-function fmtDate(s){
-  const [y,m,d]=s.split('-').map(Number);
-  return `${DAYS_SH[new Date(y,m-1,d).getDay()]} ${d} ${MONTHS_GEN[m-1]} ${y}`;
+// ── Greek holidays ──
+function getEaster(year){
+  const a=year%4,b=year%7,c=year%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7,f=d+e+114;
+  return new Date(year,Math.floor(f/31)-1,(f%31)+1+13);
 }
+function getHolidays(year){
+  const fixed=[`${year}-01-01`,`${year}-01-06`,`${year}-03-25`,`${year}-05-01`,`${year}-08-15`,`${year}-10-28`,`${year}-12-25`,`${year}-12-26`];
+  const e=getEaster(year),add=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  return new Set([...fixed,fmt(add(e,-48)),fmt(add(e,-2)),fmt(add(e,1)),fmt(add(e,50))]);
+}
+const hCache={};
+function isHoliday(ds){const y=parseInt(ds.slice(0,4));if(!hCache[y])hCache[y]=getHolidays(y);return hCache[y].has(ds);}
+function isBlocked(ds,dow){return dow===0||isHoliday(ds);}
 
-// ── State ──
-let cy, cm, schedule=null, selDate=null, selTime=null, selDur=60;
+let cy,cm,schedule=null,selDate=null,selTime=null,selDur=60;
 
-// ── Load schedule ──
 async function loadSchedule(){
-  try {
-    const snap = await getDoc(doc(db,'schedule','config'));
-    if(snap.exists()) schedule = snap.data();
-  } catch(e){ console.error(e); }
-  if(!schedule){ schedule = { duration:60, days:{} }; }
-  const now = new Date();
-  cy = now.getFullYear(); cm = now.getMonth()+1;
-  renderCal(cy, cm);
+  try{ const s=await getDoc(doc(db,'schedule','config')); if(s.exists())schedule=s.data(); }catch(e){}
+  if(!schedule) schedule={duration:60,days:{}};
+  const now=new Date(); cy=now.getFullYear(); cm=now.getMonth()+1;
+  renderCal(cy,cm);
 }
 
-// ── Render calendar ──
-function renderCal(year, month){
-  cy=year; cm=month;
-  document.getElementById('monthLabel').textContent = `${MONTHS[month-1]} ${year}`;
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  DAYS_SH.forEach(d => {
-    const el = document.createElement('div');
-    el.className='cal-head'; el.textContent=d; grid.appendChild(el);
-  });
-  const today = new Date(); today.setHours(0,0,0,0);
-  const firstDay = new Date(year, month-1, 1).getDay();
-  const days = new Date(year, month, 0).getDate();
-  for(let i=0;i<firstDay;i++){
-    const el=document.createElement('div'); el.className='cal-day'; grid.appendChild(el);
-  }
+function renderCal(year,month){
+  cy=year;cm=month;
+  document.getElementById('monthLabel').textContent=`${MONTHS[month-1]} ${year}`;
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  DAYS_SH.forEach(d=>{const el=document.createElement('div');el.className='cal-head';el.textContent=d;grid.appendChild(el);});
+  const today=new Date();today.setHours(0,0,0,0);
+  const firstDay=new Date(year,month-1,1).getDay();
+  const days=new Date(year,month,0).getDate();
+  for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-day';grid.appendChild(el);}
   for(let d=1;d<=days;d++){
-    const dt = new Date(year,month-1,d);
-    const ds = dateStr(year,month,d);
-    const dow = dt.getDay();
-    const el = document.createElement('div');
-    el.className = 'cal-day';
-    el.textContent = d;
-    if(dt < today){
-      el.classList.add('past');
-    } else {
-      const dayConf = schedule.days[String(dow)];
-      const blocked = isBlocked(ds, dow);
-      if(!blocked && dayConf && dayConf.active){
+    const ds=`${year}-${pad(month)}-${pad(d)}`;
+    const dt=new Date(year,month-1,d);
+    const dow=dt.getDay();
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.innerHTML=`<span>${d}</span>`;
+    if(dt<today){ el.classList.add('past'); }
+    else{
+      const blocked=isBlocked(ds,dow);
+      const dayConf=schedule.days?.[String(dow)];
+      if(!blocked&&dayConf&&dayConf.active){
         el.classList.add('available');
-        el.onclick = () => pickDate(ds);
+        el.innerHTML=`<span>${d}</span><div class="cal-dot"></div>`;
+        el.onclick=()=>pickDate(ds);
         if(ds===selDate) el.classList.add('selected');
-      } else {
-        el.classList.add('off');
-        if(isHoliday(ds)) el.title = 'Αργία';
-        if(dow===0) el.title = 'Κυριακή — κλειστά';
-      }
+      } else { el.classList.add('off'); }
       if(dt.getTime()===today.getTime()) el.classList.add('today');
     }
     grid.appendChild(el);
   }
 }
 
-document.getElementById('prevM').onclick = () => { let m=cm-1,y=cy; if(m<1){m=12;y--;} renderCal(y,m); };
-document.getElementById('nextM').onclick = () => { let m=cm+1,y=cy; if(m>12){m=1;y++;} renderCal(y,m); };
+document.getElementById('prevM').onclick=()=>{let m=cm-1,y=cy;if(m<1){m=12;y--;}renderCal(y,m);};
+document.getElementById('nextM').onclick=()=>{let m=cm+1,y=cy;if(m>12){m=1;y++;}renderCal(y,m);};
 
-// ── Pick date ──
 async function pickDate(ds){
-  selDate = ds; selTime = null;
+  selDate=ds;selTime=null;
   renderCal(cy,cm);
   goStep(2);
-  document.getElementById('dateLbl').textContent = fmtDate(ds);
-  document.getElementById('slotsWrap').innerHTML = '<div class="loader"><div class="spin"></div>Φόρτωση ωρών…</div>';
-
-  const [y,m,d] = ds.split('-').map(Number);
-  const dow = new Date(y,m-1,d).getDay();
-  const dayConf = schedule.days[String(dow)];
-  if(!dayConf || !dayConf.active){ renderNoSlots(); return; }
-
-  const MAX = schedule.maxPerSlot || 3;
-  const dur = schedule.duration || 60;
-
-  // Load bookings count per time + locked slots
-  let bookingCount = {}, lockedSet = new Set();
-  try {
-    const [bSnap, lSnap] = await Promise.all([
-      getDocs(query(collection(db,'bookings'), where('date','==',ds))),
-      getDocs(query(collection(db,'locked'), where('date','==',ds)))
+  document.getElementById('dateLbl').textContent=fmtDate(ds);
+  document.getElementById('slotsWrap').innerHTML='<div class="loader"><div class="spin"></div>Φόρτωση ωρών…</div>';
+  const [y,m,d]=ds.split('-').map(Number);
+  const dow=new Date(y,m-1,d).getDay();
+  const dayConf=schedule.days?.[String(dow)];
+  if(!dayConf||!dayConf.active){renderNoSlots();return;}
+  const MAX=schedule.maxPerSlot||3;
+  const dur=schedule.duration||60;
+  let bCount={},lockedSet=new Set();
+  try{
+    const[bSnap,lSnap]=await Promise.all([
+      getDocs(query(collection(db,'bookings'),where('date','==',ds))),
+      getDocs(query(collection(db,'locked'),where('date','==',ds)))
     ]);
-    bSnap.forEach(d => {
-      const t = d.data().time;
-      bookingCount[t] = (bookingCount[t]||0) + 1;
-    });
-    lSnap.forEach(d => lockedSet.add(d.data().time));
-  } catch(e){ console.error(e); }
-
-  // Generate slots
-  const slots = [];
-  let [sh,sm] = dayConf.start.split(':').map(Number);
-  let [eh,em] = dayConf.end.split(':').map(Number);
-  let cur = sh*60+sm, end = eh*60+em;
-  while(cur+dur <= end){
-    const t = `${pad(Math.floor(cur/60))}:${pad(cur%60)}`;
-    slots.push(t);
-    cur += dur;
-  }
-
-  if(!slots.length){ renderNoSlots(); return; }
-
-  const wrap = document.getElementById('slotsWrap');
-  wrap.innerHTML = '<div class="slots-grid">' + slots.map(t => {
-    const count = bookingCount[t]||0;
-    const locked = lockedSet.has(t);
-    const full = count >= MAX;
-    const remaining = MAX - count;
-    let cls = 'slot';
-    let spotsHtml = '';
-    if(locked){
-      cls += ' locked';
-      spotsHtml = `<div class="spots">🔒 Κλειδωμένο</div>`;
-    } else if(full){
-      cls += ' full';
-      spotsHtml = `<div class="spots">Πλήρες</div>`;
-    } else {
-      if(remaining === 1) cls += ' almost';
-      spotsHtml = `<div class="spots">${remaining}/${MAX} θέσεις</div>`;
-    }
-    const click = (!locked && !full) ? `onclick="pickTime('${t}',${dur})"` : '';
-    return `<div class="${cls}" ${click}>${t}<div class="dur">${dur} λεπτά</div>${spotsHtml}</div>`;
-  }).join('') + '</div>';
+    bSnap.forEach(d=>{const t=d.data().time;bCount[t]=(bCount[t]||0)+1;});
+    lSnap.forEach(d=>lockedSet.add(d.data().time));
+  }catch(e){console.error(e);}
+  let slots=[],cur=parseInt(dayConf.start)*60+parseInt(dayConf.start.split(':')[1]);
+  let[sh,sm]=dayConf.start.split(':').map(Number),[eh,em]=dayConf.end.split(':').map(Number);
+  cur=sh*60+sm;let end=eh*60+em;
+  while(cur+dur<=end){slots.push(`${pad(Math.floor(cur/60))}:${pad(cur%60)}`);cur+=dur;}
+  if(!slots.length){renderNoSlots();return;}
+  const wrap=document.getElementById('slotsWrap');
+  wrap.innerHTML='<div class="slots-grid">'+slots.map(t=>{
+    const count=bCount[t]||0,locked=lockedSet.has(t),full=count>=MAX,remaining=MAX-count;
+    let cls='slot',spots='';
+    if(locked){cls+=' locked';spots=`<div class="s-spots">🔒 Κλειδωμένο</div>`;}
+    else if(full){cls+=' full';spots=`<div class="s-spots">Πλήρες</div>`;}
+    else{if(remaining===1)cls+=' almost';spots=`<div class="s-spots">${remaining}/${MAX} θέσεις</div>`;}
+    const click=(!locked&&!full)?`onclick="pickTime('${t}',${dur})"`:'' ;
+    return `<div class="${cls}" ${click}><div class="s-time">${t}</div><div class="s-dur">${dur} λεπτά</div>${spots}</div>`;
+  }).join('')+'</div>';
 }
 
-function renderNoSlots(){
-  document.getElementById('slotsWrap').innerHTML = '<div class="no-slots">Δεν υπάρχουν διαθέσιμες ώρες για αυτή την ημέρα.</div>';
-}
+function renderNoSlots(){ document.getElementById('slotsWrap').innerHTML='<div class="no-slots">Δεν υπάρχουν διαθέσιμες ώρες.</div>'; }
 
-window.pickTime = function(t, dur){
-  selTime = t; selDur = dur;
-  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+window.pickTime=function(t,dur){
+  selTime=t;selDur=dur;
+  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
   setTimeout(()=>{
     goStep(3);
-    document.getElementById('summaryBox').innerHTML = `
+    document.getElementById('summaryBox').innerHTML=`
       <div class="summary-row"><span class="lbl">Ημερομηνία</span><span class="val">${fmtDate(selDate)}</span></div>
       <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>
-      <div class="summary-row"><span class="lbl">Διάρκεια</span><span class="val">${selDur} λεπτά</span></div>
-    `;
-  }, 200);
+      <div class="summary-row"><span class="lbl">Διάρκεια</span><span class="val">${selDur} λεπτά</span></div>`;
+  },200);
 };
 
-// ── Book ──
-window.doBook = async function(e){
+window.doBook=async function(e){
   e.preventDefault();
-  const btn = document.getElementById('submitBtn');
-  const err = document.getElementById('ferr');
-  err.style.display='none';
-  btn.disabled=true; btn.textContent='Αποστολή…';
-  const name  = document.getElementById('fname').value.trim();
-  const email = document.getElementById('femail').value.trim();
-  const phone = document.getElementById('fphone').value.trim();
-  try {
-    // Check not full / locked
-    const MAX = schedule.maxPerSlot || 3;
-    const [existing, lockedSnap] = await Promise.all([
-      getDocs(query(collection(db,'bookings'), where('date','==',selDate), where('time','==',selTime))),
-      getDocs(query(collection(db,'locked'), where('date','==',selDate), where('time','==',selTime)))
+  const btn=document.getElementById('submitBtn'),err=document.getElementById('ferr');
+  err.style.display='none';btn.disabled=true;btn.textContent='Αποστολή…';
+  const name=document.getElementById('fname').value.trim();
+  const email=document.getElementById('femail').value.trim();
+  const phone=document.getElementById('fphone').value.trim();
+  try{
+    const MAX=schedule.maxPerSlot||3;
+    const[existing,lockedSnap]=await Promise.all([
+      getDocs(query(collection(db,'bookings'),where('date','==',selDate),where('time','==',selTime))),
+      getDocs(query(collection(db,'locked'),where('date','==',selDate),where('time','==',selTime)))
     ]);
-    if(!lockedSnap.empty || existing.size >= MAX){
-      err.textContent='Λυπούμαστε, αυτή η ώρα δεν είναι πλέον διαθέσιμη. Παρακαλώ επίλεξε άλλη.';
-      err.style.display='block';
-      btn.disabled=false; btn.textContent='Επιβεβαίωση Κράτησης →';
-      return;
+    if(!lockedSnap.empty||existing.size>=MAX){
+      err.textContent='Λυπούμαστε, αυτή η ώρα δεν είναι πλέον διαθέσιμη.';
+      err.style.display='block';btn.disabled=false;btn.textContent='Επιβεβαίωση Κράτησης →';return;
     }
-    await addDoc(collection(db,'bookings'),{ date:selDate, time:selTime, duration:selDur, name, email, phone, createdAt:serverTimestamp() });
-    document.getElementById('confirmBox').innerHTML = `
+    await addDoc(collection(db,'bookings'),{date:selDate,time:selTime,duration:selDur,name,email,phone,createdAt:serverTimestamp()});
+    document.getElementById('confirmBox').innerHTML=`
       <div class="summary-row"><span class="lbl">Όνομα</span><span class="val">${name}</span></div>
       <div class="summary-row"><span class="lbl">Email</span><span class="val">${email}</span></div>
       <div class="summary-row"><span class="lbl">Ημερομηνία</span><span class="val">${fmtDate(selDate)}</span></div>
-      <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>
-    `;
+      <div class="summary-row"><span class="lbl">Ώρα</span><span class="val">${selTime}</span></div>`;
     goStep(4);
-  } catch(ex){
-    err.textContent='Σφάλμα. Παρακαλώ δοκίμασε ξανά.';
-    err.style.display='block';
-    btn.disabled=false; btn.textContent='Επιβεβαίωση Κράτησης →';
-    console.error(ex);
+  }catch(ex){
+    err.textContent='Σφάλμα. Παρακαλώ δοκίμασε ξανά.';err.style.display='block';
+    btn.disabled=false;btn.textContent='Επιβεβαίωση Κράτησης →';console.error(ex);
   }
 };
 
-// ── Navigation ──
-window.goStep = function(n){
-  document.querySelectorAll('.card').forEach((c,i)=> c.classList.toggle('active',i===n-1));
+window.goStep=function(n){
+  document.querySelectorAll('.card').forEach((c,i)=>c.classList.toggle('active',i===n-1));
   [1,2,3,4].forEach(i=>{
     const el=document.getElementById('ps'+i);
     el.classList.remove('active','done');
-    if(i<n) el.classList.add('done');
-    else if(i===n) el.classList.add('active');
+    if(i<n)el.classList.add('done');
+    else if(i===n)el.classList.add('active');
   });
   window.scrollTo({top:0,behavior:'smooth'});
 };
